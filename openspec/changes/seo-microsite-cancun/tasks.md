@@ -28,9 +28,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 1: Infrastructure & Foundation (Unit 1)
 
-- [ ] 1.1 Config Vercel adapter `hybrid` output in `astro.config.mjs` and modify `package.json` dependencies
-- [ ] 1.2 Setup GitHub remote under `iwantdeveverything` and branch protection for `main`
-- [ ] 1.3 Verify clean production build and local dev server setup
+- [x] 1.1 Config Vercel adapter (Astro v5+ static/hybrid mode) in `astro.config.mjs` and modify `package.json` dependencies
+- [x] 1.2 Setup GitHub remote under `iwantdeveverything` and branch protection for `main`
+- [x] 1.3 Verify clean production build and local dev server setup
 
 ## Phase 2: Schema & Routing (Unit 2)
 
