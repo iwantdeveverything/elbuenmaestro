@@ -38,20 +38,6 @@ const locations = [
   </div>
 
   <div class="input-group">
-    <label for="lead-email">Correo Electrónico <span class="required" aria-hidden="true">*</span></label>
-    <input 
-      type="email" 
-      id="lead-email" 
-      name="email" 
-      placeholder="ejemplo@correo.com" 
-      required 
-      autocomplete="email"
-      aria-required="true"
-    />
-    <span class="error-message" id="error-lead-email" aria-live="polite"></span>
-  </div>
-
-  <div class="input-group">
     <label for="lead-phone">Teléfono de Contacto <span class="required" aria-hidden="true">*</span></label>
     <input 
       type="tel" 
@@ -89,18 +75,6 @@ const locations = [
     <span class="error-message" id="error-lead-description" aria-live="polite"></span>
   </div>
 
-  <!-- Honeypot anti-spam field -->
-  <div class="honeypot-field" aria-hidden="true">
-    <label for="email_confirm">Confirmar Correo</label>
-    <input 
-      type="text" 
-      id="email_confirm" 
-      name="email_confirm" 
-      tabindex="-1" 
-      autocomplete="off" 
-    />
-  </div>
-
   <button type="submit" class="btn-submit" id="btn-submit-lead">
     <span class="btn-text">Enviar Solicitud</span>
     <span class="spinner" aria-hidden="true" style="display: none;"></span>
@@ -117,7 +91,6 @@ const locations = [
   // Wait for the DOM content to be parsed
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('lead-form') as HTMLFormElement;
-    const successMsg = document.getElementById('form-success-message');
     const submitBtn = document.getElementById('btn-submit-lead') as HTMLButtonElement | null;
     const errorSummary = document.getElementById('form-error-summary');
 
@@ -126,7 +99,7 @@ const locations = [
     const btnText = submitBtn.querySelector('.btn-text');
     const spinner = submitBtn.querySelector('.spinner') as HTMLElement | null;
 
-    form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
 
       // Reset previous error states
@@ -150,20 +123,12 @@ const locations = [
       const formData = new FormData(form);
 
       const name = formData.get('name') as string;
-      const email = formData.get('email') as string;
       const phone = formData.get('phone') as string;
       const location = formData.get('location') as string;
       const description = formData.get('description') as string;
 
       if (!name || name.trim() === '') {
         showError('lead-name', 'Por favor, introduce tu nombre completo.');
-        isValid = false;
-      }
-      if (!email || email.trim() === '') {
-        showError('lead-email', 'Por favor, introduce tu correo electrónico.');
-        isValid = false;
-      } else if (!/\S+@\S+\.\S+/.test(email)) {
-        showError('lead-email', 'Por favor, introduce un correo electrónico válido.');
         isValid = false;
       }
       if (!phone || phone.trim() === '') {
@@ -191,34 +156,20 @@ const locations = [
       try {
         setLoading(true);
 
-        const payload = Object.fromEntries(formData.entries());
+        const whatsappBase = 'https://wa.me/529984934110';
+        const messageText = `Hola, me gustaría solicitar un presupuesto.
+*Nombre:* ${name.trim()}
+*Teléfono:* ${phone.trim()}
+*Ubicación:* ${location}
+*Detalles del proyecto:* ${description.trim()}`;
+        const whatsappUrl = `${whatsappBase}?text=${encodeURIComponent(messageText)}`;
 
-        const response = await fetch('/api/lead', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          // Hide form, show success message
-          form.style.display = 'none';
-          if (successMsg) {
-            successMsg.style.display = 'block';
-          }
-        } else {
-          // Show API error message
-          throw new Error(data.message || 'Ocurrió un error al enviar el formulario. Inténtelo de nuevo.');
-        }
+        window.location.href = whatsappUrl;
       } catch (err: any) {
         if (errorSummary) {
           errorSummary.textContent = err.message || 'No pudimos procesar tu solicitud. Inténtalo más tarde.';
           errorSummary.style.display = 'block';
         }
-      } finally {
         setLoading(false);
       }
     });

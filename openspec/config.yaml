@@ -14,9 +14,11 @@ persistence:
     tasks: "openspec/tasks"
 testing:
   capabilities:
-    framework: null
-    commands: {}
-    strictTddMode: false
+    framework: "Node.js Test Runner"
+    commands:
+      test: "pnpm test"
+      typecheck: "pnpm typecheck"
+    strictTddMode: true
 conventions:
   devServer:
     command: "astro dev --background"

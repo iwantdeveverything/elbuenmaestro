@@ -1,21 +1,21 @@
 # Spec: Lead Capture Form
 
 ## Purpose
-Provide a secure, spam-resistant contact form to collect client inquiries.
+Provide a contact form to collect client inquiries and redirect them to WhatsApp for immediate communication.
 
 ## Requirements
-- The form MUST contain inputs for Name, Email, Phone, and Message.
-- Client-side validation MUST prevent submission of empty fields or invalid emails.
-- A hidden honeypot input field named `email_confirm` MUST be included.
-- Submissions MUST be POSTed to `/api/lead` processed server-side in Astro's hybrid rendering mode.
-- The server MUST reject requests if the honeypot field is filled.
+- The form MUST contain inputs for Name, Phone, Location (select drop-down), and Description (textarea).
+- The form MUST NOT contain an Email input field.
+- Client-side validation MUST prevent form submission if any required field (Name, Phone, Location, Description) is empty or invalid.
+- Successful form submission MUST redirect the client to WhatsApp via a pre-filled, URL-encoded string targeting number +529984934110.
+- The serverless route `/api/lead` and any honeypot filtering MUST be removed.
 
 ### Scenarios
-- **Happy Path: Valid Submit**
-  - **GIVEN** a user fills out the form correctly and the honeypot is empty
+- **Happy Path: WhatsApp Redirection**
+  - **GIVEN** a user fills out the form correctly (Name, Phone, Location, Description)
   - **WHEN** submit is clicked
-  - **THEN** the API processes the lead and returns a `200 OK` status.
-- **Edge Case: Bot submission**
-  - **GIVEN** a bot fills the hidden honeypot field
-  - **WHEN** the form submits POST to `/api/lead`
-  - **THEN** the API returns a `200 OK` (deceptive success status) and rejects/drops the lead without notifying the bot of failure.
+  - **THEN** the client validates the fields and redirects the user's browser directly to WhatsApp (`https://wa.me/529984934110?text=...`) with the pre-filled URL-encoded message.
+- **Edge Case: Client-side Validation Failure**
+  - **GIVEN** a user leaves a required field blank or inputs invalid data
+  - **WHEN** submit is clicked
+  - **THEN** the form does not redirect and shows inline error messages next to the invalid fields.
