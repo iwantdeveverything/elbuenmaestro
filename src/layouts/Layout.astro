@@ -23,33 +23,101 @@ const {
   neighborhoodContext
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://elbuenmaestrocancun.com');
+const SITE = 'https://elbuenmaestrocancun.com';
+const PHONE_DISPLAY = '998 493 4110';
+const PHONE_SCHEMA = '+529984934110';
+const OG_IMAGE = `${SITE}/og-image.png`;
 
-// JSON-LD structured schema for local business SEO
-const schemaData = {
-  "@context": "https://schema.org",
-  "@type": "MasonryContractor",
-  "name": "El Buen Maestro",
-  "description": description,
-  "url": canonicalURL.toString(),
-  "telephone": "+529981234567",
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": locationName || "Cancún",
-    "addressRegion": "Quintana Roo",
-    "addressCountry": "MX"
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || SITE);
+
+// Hub metadata for nav/footer and schema
+const HUBS = [
+  { slug: 'construccion-bardas', label: 'Construcción de Bardas', shortLabel: 'Bardas' },
+  { slug: 'pisos-azulejos', label: 'Pisos y Azulejos', shortLabel: 'Pisos' },
+  { slug: 'remodelacion-acabados', label: 'Remodelación y Acabados', shortLabel: 'Acabados' },
+  { slug: 'reparaciones-estructurales', label: 'Reparaciones Estructurales', shortLabel: 'Reparaciones' },
+];
+
+// Breadcrumb trail
+const isHome = type === 'hub' && !parentHub && !locationName;
+const breadcrumbs = (() => {
+  const crumbs: { name: string; url: string }[] = [{ name: 'Inicio', url: `${SITE}/` }];
+  if (isHome) return crumbs;
+  if (parentHub) {
+    const hub = HUBS.find(h => h.slug === parentHub);
+    if (hub) crumbs.push({ name: hub.label, url: `${SITE}/${hub.slug}` });
+    crumbs.push({ name: locationName || h1, url: canonicalURL.toString() });
+  } else if (type === 'hub') {
+    crumbs.push({ name: h1, url: canonicalURL.toString() });
+  }
+  return crumbs;
+})();
+
+// @graph JSON-LD schema
+const schemaGraph: object[] = [
+  {
+    "@type": "LocalBusiness",
+    "@id": `${SITE}/#business`,
+    "name": "El Buen Maestro",
+    "description": "Servicios profesionales de albañilería en Cancún: construcción de bardas, pisos, remodelaciones y reparación de grietas.",
+    "url": SITE,
+    "telephone": PHONE_SCHEMA,
+    "image": OG_IMAGE,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "",
+      "addressLocality": "Cancún",
+      "addressRegion": "Quintana Roo",
+      "postalCode": "77500",
+      "addressCountry": "MX"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "21.1619",
+      "longitude": "-86.8515"
+    },
+    "areaServed": {
+      "@type": "AdministrativeArea",
+      "name": "Cancún, Quintana Roo"
+    },
+    "priceRange": "$$",
+    "openingHours": "Mo-Sa 07:00-19:00"
   },
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": "21.1619",
-    "longitude": "-86.8515"
+  {
+    "@type": "WebSite",
+    "@id": `${SITE}/#website`,
+    "url": SITE,
+    "name": "El Buen Maestro",
+    "description": "Albañiles en Cancún — construcción de bardas, pisos, remodelaciones y reparaciones estructurales.",
+    "publisher": { "@id": `${SITE}/#business` },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": { "@type": "EntryPoint", "urlTemplate": `${SITE}/?s={search_term_string}` },
+      "query-input": "required name=search_term_string"
+    }
   },
-  "areaServed": {
-    "@type": "AdministrativeArea",
-    "name": locationName || "Cancún"
-  },
-  "image": "https://elbuenmaestrocancun.com/assets/logo.png"
-};
+  ...(!isHome && breadcrumbs.length > 1 ? [{
+    "@type": "BreadcrumbList",
+    "itemListElement": breadcrumbs.map((crumb, i) => ({
+      "@type": "ListItem",
+      "position": i + 1,
+      "name": crumb.name,
+      "item": crumb.url
+    }))
+  }] : []),
+  ...(service && service !== 'general' ? [{
+    "@type": "Service",
+    "serviceType": h1,
+    "provider": { "@id": `${SITE}/#business` },
+    "areaServed": {
+      "@type": "AdministrativeArea",
+      "name": locationName || "Cancún"
+    },
+    "description": description
+  }] : [])
+];
+
+const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
 ---
 
 <!doctype html>
@@ -65,6 +133,7 @@ const schemaData = {
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Open Graph / Facebook -->
@@ -72,19 +141,25 @@ const schemaData = {
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
+    <meta property="og:image" content={OG_IMAGE} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:site_name" content="El Buen Maestro" />
+    <meta property="og:locale" content="es_MX" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content={canonicalURL} />
     <meta property="twitter:title" content={title} />
     <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={OG_IMAGE} />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
-    <!-- Schema Markup -->
+    <!-- Schema Markup (@graph) -->
     <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
   </head>
   <body>
@@ -94,14 +169,38 @@ const schemaData = {
           <span class="logo-accent">👷‍♂️</span>
           <span class="logo-text">El Buen Maestro</span>
         </a>
-        <nav class="nav-menu">
-          <a href="/construccion-bardas" class="nav-link">Construcción de Bardas</a>
+        <button class="nav-toggle" id="nav-toggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="nav-menu">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="nav-menu" id="nav-menu" role="navigation" aria-label="Navegación principal">
+          {HUBS.map(hub => (
+            <a href={`/${hub.slug}`} class="nav-link">{hub.shortLabel}</a>
+          ))}
           <a href="#contacto" class="btn-quote">Cotizar Gratis</a>
         </nav>
       </div>
     </header>
 
     <main>
+      <!-- Breadcrumbs -->
+      {!isHome && breadcrumbs.length > 1 && (
+        <nav class="breadcrumb-nav" aria-label="Ruta de navegación">
+          <div class="container">
+            <ol class="breadcrumb-list">
+              {breadcrumbs.map((crumb, i) => (
+                <li class="breadcrumb-item">
+                  {i < breadcrumbs.length - 1
+                    ? <a href={crumb.url}>{crumb.name}</a>
+                    : <span aria-current="page">{crumb.name}</span>
+                  }
+                  {i < breadcrumbs.length - 1 && <span class="breadcrumb-sep" aria-hidden="true">›</span>}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </nav>
+      )}
+
       <section class="hero-section">
         <div class="container hero-container">
           <div class="badge">
@@ -186,23 +285,40 @@ const schemaData = {
         <div class="footer-brand">
           <h4>El Buen Maestro</h4>
           <p>Servicios profesionales de albañilería, acabados finos y construcción de bardas en todo Cancún y Quintana Roo.</p>
+          <div class="footer-trust">
+            <span class="trust-badge">✓ Respuesta en 24 h</span>
+            <span class="trust-badge">✓ Cotización gratis</span>
+            <span class="trust-badge">✓ Albañiles locales</span>
+          </div>
         </div>
         <div class="footer-links">
           <h5>Servicios</h5>
           <ul>
-            <li><a href="/construccion-bardas">Construcción de Bardas</a></li>
+            {HUBS.map(hub => (
+              <li><a href={`/${hub.slug}`}>{hub.label}</a></li>
+            ))}
           </ul>
         </div>
         <div class="footer-contact">
           <h5>Contacto</h5>
-          <p>📱 WhatsApp/Tel: 998 123 4567</p>
+          <p>📱 <a href={`tel:${PHONE_SCHEMA}`} class="footer-phone">WhatsApp / Tel: {PHONE_DISPLAY}</a></p>
           <p>📍 Cancún, Quintana Roo, México</p>
+          <p>🕐 Lun–Sáb 7:00–19:00</p>
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; {new Date().getFullYear()} El Buen Maestro. Todos los derechos reservados. Diseñado para SEO Local.</p>
+        <p>&copy; {new Date().getFullYear()} El Buen Maestro — Albañiles en Cancún. Todos los derechos reservados.</p>
       </div>
     </footer>
+
+    <script>
+      const toggle = document.getElementById('nav-toggle');
+      const menu = document.getElementById('nav-menu');
+      toggle?.addEventListener('click', () => {
+        const open = menu?.classList.toggle('nav-open');
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+    </script>
   </body>
 </html>
 
@@ -673,4 +789,126 @@ const schemaData = {
     text-align: center;
     font-size: 0.8rem;
   }
+
+  /* Breadcrumb Nav */
+  .breadcrumb-nav {
+    background-color: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.6rem 0;
+    font-size: 0.82rem;
+  }
+
+  .breadcrumb-list {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    list-style: none;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-muted);
+  }
+
+  .breadcrumb-item a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .breadcrumb-item a:hover {
+    color: var(--primary);
+  }
+
+  .breadcrumb-item span[aria-current] {
+    color: var(--primary);
+    font-weight: 500;
+  }
+
+  .breadcrumb-sep {
+    color: var(--border-color);
+    font-size: 1rem;
+  }
+
+  /* Mobile Nav Toggle */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+  }
+
+  .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background-color: var(--text-dark);
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  @media (max-width: 768px) {
+    .nav-toggle {
+      display: flex;
+    }
+
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background-color: rgba(11, 13, 16, 0.97);
+      border-bottom: 1px solid var(--border-color);
+      flex-direction: column;
+      padding: 1rem 1.5rem;
+      gap: 1rem;
+      z-index: 99;
+    }
+
+    .nav-menu.nav-open {
+      display: flex;
+    }
+
+    .site-header {
+      position: relative;
+    }
+  }
+
+  /* Footer Trust Badges */
+  .footer-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .trust-badge {
+    background-color: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    color: var(--primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+  }
+
+  /* Footer phone link */
+  .footer-phone {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-phone:hover {
+    color: var(--primary);
+  }
+
 </style>
