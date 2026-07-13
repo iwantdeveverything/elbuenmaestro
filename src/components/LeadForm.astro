@@ -1,0 +1,437 @@
+---
+interface Props {
+  locationName?: string;
+}
+
+const { locationName } = Astro.props;
+
+const locations = [
+  "Zona Hotelera",
+  "Bonfil",
+  "Centro",
+  "Prado Norte",
+  "Polígono Sur",
+  "Huayacán",
+  "Isla Mujeres Continental",
+  "La Joya/Villas del Mar",
+  "SM 50-51 Nichupté",
+  "Tierra Nueva/Paraíso Maya",
+  "Puerto Cancún"
+];
+---
+
+<form id="lead-form" class="lead-form" novalidate>
+  <div id="form-error-summary" class="error-summary" role="alert" aria-live="polite" style="display: none;"></div>
+  
+  <div class="input-group">
+    <label for="lead-name">Nombre Completo <span class="required" aria-hidden="true">*</span></label>
+    <input 
+      type="text" 
+      id="lead-name" 
+      name="name" 
+      placeholder="Ej. Juan Pérez" 
+      required 
+      autocomplete="name"
+      aria-required="true"
+    />
+    <span class="error-message" id="error-lead-name" aria-live="polite"></span>
+  </div>
+
+  <div class="input-group">
+    <label for="lead-email">Correo Electrónico <span class="required" aria-hidden="true">*</span></label>
+    <input 
+      type="email" 
+      id="lead-email" 
+      name="email" 
+      placeholder="ejemplo@correo.com" 
+      required 
+      autocomplete="email"
+      aria-required="true"
+    />
+    <span class="error-message" id="error-lead-email" aria-live="polite"></span>
+  </div>
+
+  <div class="input-group">
+    <label for="lead-phone">Teléfono de Contacto <span class="required" aria-hidden="true">*</span></label>
+    <input 
+      type="tel" 
+      id="lead-phone" 
+      name="phone" 
+      placeholder="Ej. 998 123 4567" 
+      required 
+      autocomplete="tel"
+      aria-required="true"
+    />
+    <span class="error-message" id="error-lead-phone" aria-live="polite"></span>
+  </div>
+
+  <div class="input-group">
+    <label for="lead-location">Ubicación del Proyecto <span class="required" aria-hidden="true">*</span></label>
+    <select id="lead-location" name="location" required aria-required="true">
+      <option value="" disabled selected>Seleccione una ubicación</option>
+      {locations.map((loc) => (
+        <option value={loc} selected={locationName === loc}>{loc}</option>
+      ))}
+    </select>
+    <span class="error-message" id="error-lead-location" aria-live="polite"></span>
+  </div>
+
+  <div class="input-group">
+    <label for="lead-description">Descripción del Proyecto <span class="required" aria-hidden="true">*</span></label>
+    <textarea 
+      id="lead-description" 
+      name="description" 
+      rows="4" 
+      placeholder="Describa el trabajo de albañilería que necesita (ej. barda de 10 metros, acabados finos, etc.)..." 
+      required
+      aria-required="true"
+    ></textarea>
+    <span class="error-message" id="error-lead-description" aria-live="polite"></span>
+  </div>
+
+  <!-- Honeypot anti-spam field -->
+  <div class="honeypot-field" aria-hidden="true">
+    <label for="email_confirm">Confirmar Correo</label>
+    <input 
+      type="text" 
+      id="email_confirm" 
+      name="email_confirm" 
+      tabindex="-1" 
+      autocomplete="off" 
+    />
+  </div>
+
+  <button type="submit" class="btn-submit" id="btn-submit-lead">
+    <span class="btn-text">Enviar Solicitud</span>
+    <span class="spinner" aria-hidden="true" style="display: none;"></span>
+  </button>
+</form>
+
+<div id="form-success-message" class="success-message" role="alert" aria-live="polite" style="display: none;">
+  <div class="success-icon">✨</div>
+  <h4>¡Solicitud Recibida!</h4>
+  <p>Gracias por confiar en <strong>El Buen Maestro</strong>. Nos pondremos en contacto contigo en menos de 24 horas para darte un presupuesto sin compromiso.</p>
+</div>
+
+<script>
+  // Wait for the DOM content to be parsed
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('lead-form') as HTMLFormElement | null;
+    const successMsg = document.getElementById('form-success-message');
+    const submitBtn = document.getElementById('btn-submit-lead') as HTMLButtonElement | null;
+    const errorSummary = document.getElementById('form-error-summary');
+
+    if (!form || !submitBtn) return;
+
+    const btnText = submitBtn.querySelector('.btn-text');
+    const spinner = submitBtn.querySelector('.spinner') as HTMLElement | null;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Reset previous error states
+      if (errorSummary) {
+        errorSummary.style.display = 'none';
+        errorSummary.textContent = '';
+      }
+      
+      const inputs = form.querySelectorAll('input, textarea, select');
+      inputs.forEach(input => {
+        input.classList.remove('invalid');
+        const errSpan = document.getElementById(`error-${input.id}`);
+        if (errSpan) {
+          errSpan.textContent = '';
+          errSpan.classList.remove('visible');
+        }
+      });
+
+      // Front-end Validation
+      let isValid = true;
+      const formData = new FormData(form);
+
+      const name = formData.get('name') as string;
+      const email = formData.get('email') as string;
+      const phone = formData.get('phone') as string;
+      const location = formData.get('location') as string;
+      const description = formData.get('description') as string;
+
+      if (!name || name.trim() === '') {
+        showError('lead-name', 'Por favor, introduce tu nombre completo.');
+        isValid = false;
+      }
+      if (!email || email.trim() === '') {
+        showError('lead-email', 'Por favor, introduce tu correo electrónico.');
+        isValid = false;
+      } else if (!/\S+@\S+\.\S+/.test(email)) {
+        showError('lead-email', 'Por favor, introduce un correo electrónico válido.');
+        isValid = false;
+      }
+      if (!phone || phone.trim() === '') {
+        showError('lead-phone', 'Por favor, introduce tu teléfono de contacto.');
+        isValid = false;
+      }
+      if (!location) {
+        showError('lead-location', 'Por favor, selecciona la ubicación de tu proyecto.');
+        isValid = false;
+      }
+      if (!description || description.trim() === '') {
+        showError('lead-description', 'Por favor, describe los detalles del trabajo.');
+        isValid = false;
+      }
+
+      if (!isValid) {
+        if (errorSummary) {
+          errorSummary.textContent = 'Por favor, corrige los errores en el formulario antes de enviar.';
+          errorSummary.style.display = 'block';
+        }
+        return;
+      }
+
+      // If valid, start submit sequence
+      try {
+        setLoading(true);
+
+        const payload = Object.fromEntries(formData.entries());
+
+        const response = await fetch('/api/lead', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Hide form, show success message
+          form.style.display = 'none';
+          if (successMsg) {
+            successMsg.style.display = 'block';
+          }
+        } else {
+          // Show API error message
+          throw new Error(data.message || 'Ocurrió un error al enviar el formulario. Inténtelo de nuevo.');
+        }
+      } catch (err: any) {
+        if (errorSummary) {
+          errorSummary.textContent = err.message || 'No pudimos procesar tu solicitud. Inténtalo más tarde.';
+          errorSummary.style.display = 'block';
+        }
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    function showError(id: string, message: string) {
+      const input = document.getElementById(id);
+      input?.classList.add('invalid');
+      const errSpan = document.getElementById(`error-${id}`);
+      if (errSpan) {
+        errSpan.textContent = message;
+        errSpan.classList.add('visible');
+      }
+    }
+
+    function setLoading(isLoading: boolean) {
+      if (!submitBtn) return;
+      submitBtn.disabled = isLoading;
+      if (isLoading) {
+        if (btnText) btnText.textContent = 'Enviando...';
+        if (spinner) spinner.style.display = 'inline-block';
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+          (input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).disabled = true;
+        });
+      } else {
+        if (btnText) btnText.textContent = 'Enviar Solicitud';
+        if (spinner) spinner.style.display = 'none';
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+          (input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).disabled = false;
+        });
+      }
+    }
+  });
+</script>
+
+<style>
+  .lead-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .input-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-block;
+  }
+
+  .required {
+    color: var(--accent);
+    margin-left: 2px;
+  }
+
+  .input-group input,
+  .input-group textarea,
+  .input-group select {
+    background-color: #161b26;
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 1rem; /* Prevent iOS Zoom */
+    width: 100%;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-height: 48px;
+    box-sizing: border-box;
+  }
+
+  .input-group select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+  }
+
+  .input-group input:focus,
+  .input-group textarea:focus,
+  .input-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  }
+
+  .input-group input.invalid,
+  .input-group textarea.invalid,
+  .input-group select.invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  }
+
+  .error-message {
+    color: #f87171;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+
+  .error-message.visible {
+    display: block;
+  }
+
+  .error-summary {
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  /* Honeypot field - absolute hide */
+  .honeypot-field {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--primary);
+    color: #0b0d10;
+    border: none;
+    padding: 0.85rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    transition: all 0.2s ease;
+    width: 100%;
+    min-height: 48px;
+  }
+
+  .btn-submit:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .spinner {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid rgba(11, 13, 16, 0.3);
+    border-top-color: #0b0d10;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Success Screen styles */
+  .success-message {
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    background-color: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 12px;
+    animation: fadeIn 0.4s ease-out;
+  }
+
+  .success-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    animation: bounce 1s infinite alternate;
+  }
+
+  .success-message h4 {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    color: #10b981;
+    margin-bottom: 0.75rem;
+  }
+
+  .success-message p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-5px); }
+  }
+</style>

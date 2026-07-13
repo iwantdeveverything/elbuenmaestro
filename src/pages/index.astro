@@ -2,6 +2,7 @@
 import { getEntry, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import SiloLinks from '../components/SiloLinks.astro';
+import LeadForm from '../components/LeadForm.astro';
 
 // Fetch the index page entry from the content collection
 const entry = await getEntry('pages', 'index');
@@ -23,5 +24,6 @@ const { title, description, h1, type, service, landmarks } = entry.data;
   landmarks={landmarks}
 >
   <Content />
+  <LeadForm slot="lead-form" />
   <SiloLinks slot="silo-links" page={entry} />
 </Layout>

@@ -47,9 +47,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Lead Capture (Unit 4)
 
-- [ ] 4.1 Create `src/components/LeadForm.astro` with inputs and hidden honeypot spam protection field
-- [ ] 4.2 Create serverless endpoint `src/pages/api/lead.ts` validating input schemas and honeypot
-- [ ] 4.3 Test: Mock form submission validating empty honeypot, field types, and spam filtering
+- [x] 4.1 Create `src/components/LeadForm.astro` with inputs and hidden honeypot spam protection field
+- [x] 4.2 Create serverless endpoint `src/pages/api/lead.ts` validating input schemas and honeypot
+- [x] 4.3 Test: Mock form submission validating empty honeypot, field types, and spam filtering
 
 ## Phase 5: Content & Verification (Unit 5)
 
