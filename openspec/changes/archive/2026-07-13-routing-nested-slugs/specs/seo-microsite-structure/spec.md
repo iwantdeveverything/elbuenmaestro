@@ -1,9 +1,6 @@
-# Spec: SEO Microsite Structure
+# Delta for SEO Microsite Structure
 
-## Purpose
-Define the type-safe structure and navigation siloing for the 49 local SEO pages.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: URL Routing Topology
 
@@ -20,8 +17,8 @@ prior flat routing model is non-conformant. The rest-parameter route serving pag
 NOT shadow the home page (`/`) or the `/api/lead` endpoint.
 
 (Previously: spec stated slugs "MUST use flat routing" while requiring nested paths, an
-internal contradiction; spokes were emitted as flat single-segment URLs. This requirement
-now locks nested spoke URLs and explicitly rejects flat spoke URLs. Closes issue #4.)
+internal contradiction; spokes were emitted as flat single-segment URLs. This locks nested
+spoke URLs and explicitly rejects flat spoke URLs. Closes issue #4.)
 
 #### Scenario: Spoke renders at nested URL
 
@@ -49,10 +46,6 @@ now locks nested spoke URLs and explicitly rejects flat spoke URLs. Closes issue
 - GIVEN the rest-parameter page route and the `/api/lead` endpoint coexist
 - WHEN a request resolves to `/` or `/api/lead`
 - THEN the home page and the lead endpoint respond, not the rest-parameter route
-
-### Requirement: Content Collections
-
-- Content schemas MUST use Astro Content Collections to ensure type-safe metadata (title, service type, location landmarks).
 
 ### Requirement: Silo Navigation Linking
 

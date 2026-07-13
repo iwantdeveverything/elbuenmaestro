@@ -1,16 +1,21 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import SiloLinks from '../components/SiloLinks.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { getPageUrl } from '../utils/getPageUrl.ts';
 
 // Generate static paths for all pages except the homepage
 export async function getStaticPaths() {
   const pages = await getCollection('pages');
-  
+
   // Filter out the home page as it is handled by index.astro
   const filteredPages = pages.filter((page) => page.id !== 'index');
 
   return filteredPages.map((page) => ({
-    params: { slug: page.id },
+    // Rest param wants segments without a leading slash; getPageUrl is the
+    // single source of URL truth ('a/b' -> ['a','b'] at build time).
+    params: { slug: getPageUrl(page).slice(1) },
     props: { page },
   }));
 }
@@ -43,4 +48,6 @@ const {
   neighborhoodContext={neighborhoodContext}
 >
   <Content />
+  <LeadForm slot="lead-form" locationName={locationName} />
+  <SiloLinks slot="silo-links" page={page} />
 </Layout>

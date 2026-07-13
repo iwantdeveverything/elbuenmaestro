@@ -1,0 +1,364 @@
+---
+import { getCollection } from 'astro:content';
+import { getSiloLinks } from '../utils/siloLinking';
+import type { SiloPageEntry } from '../utils/siloLinking';
+
+interface Props {
+  page: SiloPageEntry;
+}
+
+const { page } = Astro.props;
+
+// Fetch all pages dynamically from content collection to build the silo graph
+const allPages = (await getCollection('pages')) as unknown as SiloPageEntry[];
+const siloResult = getSiloLinks(page, allPages);
+---
+
+{siloResult.type === 'home' && siloResult.hubs && siloResult.hubs.length > 0 && (
+  <nav class="silo-nav" aria-label="Enlaces de navegación del silo">
+    <div class="silo-header">
+      <h2>Especialidades de Albañilería en Cancún</h2>
+      <p>Explore nuestros servicios especializados de construcción y acabados.</p>
+    </div>
+    <ul class="silo-grid">
+      {siloResult.hubs.map((hub) => (
+        <li>
+          <a href={hub.url} class="silo-card-link">
+            <span class="silo-card-icon">🏗️</span>
+            <div class="silo-card-content">
+              <span class="silo-link-text">{hub.text}</span>
+              <span class="silo-link-desc">Ver coberturas y detalles del servicio</span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+{siloResult.type === 'hub' && siloResult.spokes && siloResult.spokes.length > 0 && (
+  <nav class="silo-nav" aria-label="Enlaces de navegación local">
+    <div class="silo-header">
+      <h2>Cobertura Local en Cancún</h2>
+      <p>Ofrecemos servicios de albañilería profesional en múltiples zonas y colonias.</p>
+    </div>
+    <ul class="silo-list">
+      {siloResult.spokes.map((spoke) => (
+        <li>
+          <a href={spoke.url} class="silo-pill-link">
+            <span class="silo-pill-icon">📍</span>
+            <span class="silo-pill-text">{spoke.text}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+{siloResult.type === 'spoke' && (
+  <nav class="silo-nav" aria-label="Enlaces de navegación interna y relacionados">
+    <div class="silo-spoke-container">
+      {/* Upward Link to Hub & Home Link */}
+      <div class="silo-spoke-main-links">
+        {siloResult.parentHub && (
+          <a href={siloResult.parentHub.url} class="silo-action-link primary-action">
+            <span class="action-icon">📂</span>
+            <div class="action-text-wrapper">
+              <span class="action-label">Servicio Principal</span>
+              <span class="action-title">{siloResult.parentHub.text}</span>
+            </div>
+          </a>
+        )}
+        {siloResult.home && (
+          <a href={siloResult.home.url} class="silo-action-link secondary-action">
+            <span class="action-icon">🏠</span>
+            <div class="action-text-wrapper">
+              <span class="action-label">Página de Inicio</span>
+              <span class="action-title">{siloResult.home.text}</span>
+            </div>
+          </a>
+        )}
+      </div>
+
+      {/* Lateral / Related Links */}
+      {siloResult.laterals && siloResult.laterals.length > 0 && (
+        <div class="silo-laterals-section">
+          <h3>Otras Zonas y Servicios Relacionados</h3>
+          <ul class="silo-laterals-list">
+            {siloResult.laterals.map((lateral) => (
+              <li>
+                <a href={lateral.url} class="silo-lateral-link">
+                  <span class="lateral-icon">🔗</span>
+                  <span class="lateral-text">{lateral.text}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  </nav>
+)}
+
+<style>
+  .silo-nav {
+    padding: 2.5rem 1.5rem;
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    margin-top: 1rem;
+  }
+
+  .silo-header {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .silo-header h2 {
+    font-family: var(--font-heading);
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+  }
+
+  .silo-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* Grid layout for Hub links on Homepage */
+  .silo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    .silo-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .silo-card-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .silo-card-link:hover {
+    background-color: rgba(245, 158, 11, 0.04);
+    border-color: rgba(245, 158, 11, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .silo-card-icon {
+    font-size: 1.75rem;
+    background-color: rgba(245, 158, 11, 0.1);
+    padding: 0.5rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .silo-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .silo-link-text {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: color 0.2s ease;
+  }
+
+  .silo-card-link:hover .silo-link-text {
+    color: var(--primary);
+  }
+
+  .silo-link-desc {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  /* List layout for Spokes on Hub page */
+  .silo-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  .silo-pill-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 30px;
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.25s ease;
+  }
+
+  .silo-pill-link:hover {
+    background-color: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: var(--primary);
+    transform: translateX(4px);
+  }
+
+  .silo-pill-icon {
+    font-size: 1.1rem;
+  }
+
+  /* Spoke/Location layout linking back and lateral */
+  .silo-spoke-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .silo-spoke-main-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .silo-spoke-main-links {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .silo-action-link {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .primary-action {
+    background-color: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  .primary-action:hover {
+    background-color: rgba(245, 158, 11, 0.1);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  .secondary-action {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .secondary-action:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--text-muted);
+    transform: translateY(-2px);
+  }
+
+  .action-icon {
+    font-size: 2rem;
+    opacity: 0.9;
+  }
+
+  .action-text-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .action-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .action-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    transition: color 0.2s ease;
+  }
+
+  .primary-action:hover .action-title {
+    color: var(--primary);
+  }
+
+  .silo-laterals-section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+  }
+
+  .silo-laterals-section h3 {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 1.25rem;
+  }
+
+  .silo-laterals-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+  }
+
+  @media (min-width: 768px) {
+    .silo-laterals-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .silo-lateral-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.1rem;
+    background-color: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .silo-lateral-link:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+    transform: translateX(4px);
+  }
+
+  .lateral-icon {
+    font-size: 0.95rem;
+  }
+</style>

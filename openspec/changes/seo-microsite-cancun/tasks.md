@@ -41,18 +41,18 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Dynamic Silo Linking (Unit 3)
 
-- [ ] 3.1 Create query helper `src/utils/siloLinking.ts` to get parent, child, and lateral pages
-- [ ] 3.2 Create `src/components/SiloLinks.astro` UI component to render links from the helper
-- [ ] 3.3 Test: Verify silo links logic correctly isolates hubs and links lateral location pages in unit tests
+- [x] 3.1 Create query helper `src/utils/siloLinking.ts` to get parent, child, and lateral pages
+- [x] 3.2 Create `src/components/SiloLinks.astro` UI component to render links from the helper
+- [x] 3.3 Test: Verify silo links logic correctly isolates hubs and links lateral location pages in unit tests
 
 ## Phase 4: Lead Capture (Unit 4)
 
-- [ ] 4.1 Create `src/components/LeadForm.astro` with inputs and hidden honeypot spam protection field
-- [ ] 4.2 Create serverless endpoint `src/pages/api/lead.ts` validating input schemas and honeypot
-- [ ] 4.3 Test: Mock form submission validating empty honeypot, field types, and spam filtering
+- [x] 4.1 Create `src/components/LeadForm.astro` with inputs and hidden honeypot spam protection field
+- [x] 4.2 Create serverless endpoint `src/pages/api/lead.ts` validating input schemas and honeypot
+- [x] 4.3 Test: Mock form submission validating empty honeypot, field types, and spam filtering
 
 ## Phase 5: Content & Verification (Unit 5)
 
-- [ ] 5.1 Add all 4 hubs and 44 location spokes markdown content under `src/content/pages/`
-- [ ] 5.2 Run automated build validation checks verifying all 49 pages generate correct static paths
-- [ ] 5.3 E2E Test: Verify form submit responds successfully under dev server
+- [x] 5.1 Add all 4 hubs and 44 location spokes markdown content under `src/content/pages/`
+- [x] 5.2 Run automated build validation checks verifying all 49 pages generate correct static paths
+- [x] 5.3 E2E Test: Verify form submit responds successfully under dev server
