@@ -103,6 +103,9 @@ test('Hub Silo Linking - returns links to all its location Spokes', () => {
   const spokeSlugs = result.spokes.map((s) => s.slug);
   assert.ok(spokeSlugs.includes('bardas-zona-hotelera'));
   assert.ok(spokeSlugs.includes('bardas-centro'));
+
+  // Downward hub-to-spoke links must be nested (parentHub/locationSlug)
+  assert.strictEqual(result.spokes[0].url, '/construccion-bardas/zona-hotelera');
 });
 
 test('Spoke Silo Linking - returns upward parent, home, and lateral links', () => {
@@ -130,4 +133,14 @@ test('Spoke Silo Linking - returns upward parent, home, and lateral links', () =
   const lateralSlugs = result.laterals.map((l) => l.slug);
   assert.ok(lateralSlugs.includes('acabados-centro'), 'Should include same location, different service');
   assert.ok(lateralSlugs.includes('bardas-zona-hotelera'), 'Should include same service, other location');
+
+  // Lateral spoke links must use the nested URL derived from the sibling's own hub
+  assert.ok(
+    result.laterals.some((l) => l.url === '/acabados-finos/centro'),
+    'Lateral same-location-different-service link must be nested'
+  );
+  assert.ok(
+    result.laterals.some((l) => l.url === '/construccion-bardas/zona-hotelera'),
+    'Lateral same-service-other-location link must be nested'
+  );
 });

@@ -1,3 +1,5 @@
+import { getPageUrl } from './getPageUrl.ts';
+
 export interface SiloPageData {
   title: string;
   description: string;
@@ -49,7 +51,7 @@ export function getSiloLinks(
       .filter((page) => page.data.type === 'hub' && page.id !== 'index')
       .map((page) => ({
         slug: page.id,
-        url: `/${page.id}`,
+        url: getPageUrl(page),
         text: page.data.h1 || page.data.title,
       }));
 
@@ -69,7 +71,7 @@ export function getSiloLinks(
       )
       .map((page) => ({
         slug: page.id,
-        url: `/${page.id}`,
+        url: getPageUrl(page),
         text: page.data.h1 || page.data.title,
       }));
 
@@ -92,14 +94,14 @@ export function getSiloLinks(
   const parentHubLink: SiloLink | undefined = parentHubEntry
     ? {
         slug: parentHubEntry.id,
-        url: `/${parentHubEntry.id}`,
+        url: getPageUrl(parentHubEntry),
         text: parentHubEntry.data.h1 || parentHubEntry.data.title,
       }
     : undefined;
 
   const homeLink: SiloLink = {
     slug: 'index',
-    url: '/',
+    url: homeEntry ? getPageUrl(homeEntry) : '/',
     text: homeEntry?.data.h1 || 'Inicio: Albañiles Profesionales en Cancún',
   };
 
@@ -120,7 +122,7 @@ export function getSiloLinks(
   if (sameLocDiffService) {
     laterals.push({
       slug: sameLocDiffService.id,
-      url: `/${sameLocDiffService.id}`,
+      url: getPageUrl(sameLocDiffService),
       text: sameLocDiffService.data.h1 || sameLocDiffService.data.title,
     });
   }
@@ -148,7 +150,7 @@ export function getSiloLinks(
     if (nextSpoke.id !== currentPage.id) {
       laterals.push({
         slug: nextSpoke.id,
-        url: `/${nextSpoke.id}`,
+        url: getPageUrl(nextSpoke),
         text: nextSpoke.data.h1 || nextSpoke.data.title,
       });
     }
@@ -162,7 +164,7 @@ export function getSiloLinks(
       if (prevSpoke.id !== currentPage.id && prevSpoke.id !== nextSpoke.id) {
         laterals.push({
           slug: prevSpoke.id,
-          url: `/${prevSpoke.id}`,
+          url: getPageUrl(prevSpoke),
           text: prevSpoke.data.h1 || prevSpoke.data.title,
         });
       }
