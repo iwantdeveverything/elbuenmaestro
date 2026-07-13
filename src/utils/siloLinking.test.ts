@@ -83,12 +83,12 @@ test('Homepage Silo Linking - returns links to main Hubs', () => {
   assert.strictEqual(result.type, 'home');
   assert.ok(result.hubs);
   // Should link to the 2 hubs (construccion-bardas, acabados-finos)
-  assert.strictEqual(result.hubs.length, 2);
+  assert.strictEqual(result.hubs!.length, 2);
   
-  const hubIds = result.hubs.map((h) => h.slug);
+  const hubIds = result.hubs!.map((h) => h.slug);
   assert.ok(hubIds.includes('construccion-bardas'));
   assert.ok(hubIds.includes('acabados-finos'));
-  assert.strictEqual(result.hubs[0].url, '/construccion-bardas');
+  assert.strictEqual(result.hubs![0].url, '/construccion-bardas');
 });
 
 test('Hub Silo Linking - returns links to all its location Spokes', () => {
@@ -98,14 +98,14 @@ test('Hub Silo Linking - returns links to all its location Spokes', () => {
   assert.strictEqual(result.type, 'hub');
   assert.ok(result.spokes);
   // Should return the 2 spokes associated with this hub
-  assert.strictEqual(result.spokes.length, 2);
+  assert.strictEqual(result.spokes!.length, 2);
   
-  const spokeSlugs = result.spokes.map((s) => s.slug);
+  const spokeSlugs = result.spokes!.map((s) => s.slug);
   assert.ok(spokeSlugs.includes('bardas-zona-hotelera'));
   assert.ok(spokeSlugs.includes('bardas-centro'));
 
   // Downward hub-to-spoke links must be nested (parentHub/locationSlug)
-  assert.strictEqual(result.spokes[0].url, '/construccion-bardas/zona-hotelera');
+  assert.strictEqual(result.spokes![0].url, '/construccion-bardas/zona-hotelera');
 });
 
 test('Spoke Silo Linking - returns upward parent, home, and lateral links', () => {
@@ -116,31 +116,31 @@ test('Spoke Silo Linking - returns upward parent, home, and lateral links', () =
   
   // Upward link
   assert.ok(result.parentHub);
-  assert.strictEqual(result.parentHub.slug, 'construccion-bardas');
-  assert.strictEqual(result.parentHub.url, '/construccion-bardas');
+  assert.strictEqual(result.parentHub!.slug, 'construccion-bardas');
+  assert.strictEqual(result.parentHub!.url, '/construccion-bardas');
 
   // Home link
   assert.ok(result.home);
-  assert.strictEqual(result.home.slug, 'index');
-  assert.strictEqual(result.home.url, '/');
+  assert.strictEqual(result.home!.slug, 'index');
+  assert.strictEqual(result.home!.url, '/');
 
   // Lateral links:
   // 1. Same location (Centro), different service -> acabados-centro
   // 2. Same service (construccion-bardas), neighboring location -> bardas-zona-hotelera
   assert.ok(result.laterals);
-  assert.strictEqual(result.laterals.length, 2);
+  assert.strictEqual(result.laterals!.length, 2);
 
-  const lateralSlugs = result.laterals.map((l) => l.slug);
+  const lateralSlugs = result.laterals!.map((l) => l.slug);
   assert.ok(lateralSlugs.includes('acabados-centro'), 'Should include same location, different service');
   assert.ok(lateralSlugs.includes('bardas-zona-hotelera'), 'Should include same service, other location');
 
   // Lateral spoke links must use the nested URL derived from the sibling's own hub
   assert.ok(
-    result.laterals.some((l) => l.url === '/acabados-finos/centro'),
+    result.laterals!.some((l) => l.url === '/acabados-finos/centro'),
     'Lateral same-location-different-service link must be nested'
   );
   assert.ok(
-    result.laterals.some((l) => l.url === '/construccion-bardas/zona-hotelera'),
+    result.laterals!.some((l) => l.url === '/construccion-bardas/zona-hotelera'),
     'Lateral same-service-other-location link must be nested'
   );
 });
