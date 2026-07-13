@@ -28,3 +28,6 @@ pnpm-debug.log*
 
 # Vercel
 .vercel/
+
+# local scratch tooling (generators, drafts)
+scratch/

@@ -53,6 +53,6 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: Content & Verification (Unit 5)
 
-- [ ] 5.1 Add all 4 hubs and 44 location spokes markdown content under `src/content/pages/`
-- [ ] 5.2 Run automated build validation checks verifying all 49 pages generate correct static paths
-- [ ] 5.3 E2E Test: Verify form submit responds successfully under dev server
+- [x] 5.1 Add all 4 hubs and 44 location spokes markdown content under `src/content/pages/`
+- [x] 5.2 Run automated build validation checks verifying all 49 pages generate correct static paths
+- [x] 5.3 E2E Test: Verify form submit responds successfully under dev server
