@@ -1,0 +1,26 @@
+project:
+  name: "elbuenmaestro"
+  stack:
+    framework: "Astro"
+    frameworkVersion: "7.0.8"
+    language: "TypeScript"
+    packageManager: "pnpm"
+    nodeVersion: ">=22.12.0"
+persistence:
+  mode: "openspec"
+  paths:
+    specs: "openspec/specs"
+    designs: "openspec/designs"
+    tasks: "openspec/tasks"
+testing:
+  capabilities:
+    framework: null
+    commands: {}
+    strictTddMode: false
+conventions:
+  devServer:
+    command: "astro dev --background"
+    management:
+      stop: "astro dev stop"
+      status: "astro dev status"
+      logs: "astro dev logs"
