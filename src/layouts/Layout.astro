@@ -41,14 +41,14 @@ const HUBS = [
 // Breadcrumb trail
 const isHome = type === 'hub' && !parentHub && !locationName;
 const breadcrumbs = (() => {
-  const crumbs: { name: string; url: string }[] = [{ name: 'Inicio', url: `${SITE}/` }];
+  const crumbs: { name: string; url: string }[] = [{ name: 'Inicio', url: '/' }];
   if (isHome) return crumbs;
   if (parentHub) {
     const hub = HUBS.find(h => h.slug === parentHub);
-    if (hub) crumbs.push({ name: hub.label, url: `${SITE}/${hub.slug}` });
-    crumbs.push({ name: locationName || h1, url: canonicalURL.toString() });
+    if (hub) crumbs.push({ name: hub.label, url: `/${hub.slug}` });
+    crumbs.push({ name: locationName || h1, url: Astro.url.pathname });
   } else if (type === 'hub') {
-    crumbs.push({ name: h1, url: canonicalURL.toString() });
+    crumbs.push({ name: h1, url: Astro.url.pathname });
   }
   return crumbs;
 })();
@@ -102,7 +102,7 @@ const schemaGraph: object[] = [
       "@type": "ListItem",
       "position": i + 1,
       "name": crumb.name,
-      "item": crumb.url
+      "item": new URL(crumb.url, canonicalURL).toString()
     }))
   }] : []),
   ...(service && service !== 'general' ? [{
