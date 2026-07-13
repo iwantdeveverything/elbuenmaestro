@@ -20,7 +20,7 @@ This file details the detected capabilities, configuration, and conventions of t
 - **Documentation**: Refer to the official [Astro Documentation](https://docs.astro.build).
 
 ## Testing Capabilities
-- **Status**: No testing framework is currently configured in the workspace.
-- **Recommendations**: If automated testing is required, consider installing and configuring one of the following:
-  - **Vitest**: Recommended for unit and integration testing of components/helpers.
-  - **Playwright**: Recommended for end-to-end testing of the Astro site.
+- **Framework**: Node.js Test Runner (native)
+- **Test Command**: `pnpm test` (runs Node's native test runner with TS strip-types)
+- **Typecheck Command**: `pnpm typecheck` (runs Astro check)
+- **Strict TDD Mode**: Enabled (`strictTddMode: true`)
