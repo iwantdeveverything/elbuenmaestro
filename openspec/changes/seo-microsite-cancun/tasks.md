@@ -34,10 +34,10 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Schema & Routing (Unit 2)
 
-- [ ] 2.1 Create `src/content/config.ts` defining pages schema (`hub` vs `spoke`, landmarks, parentHub)
-- [ ] 2.2 Create `src/pages/[slug].astro` dynamic route template to handle rendering for hubs and spokes
-- [ ] 2.3 Add sample Markdown files in `src/content/pages/` to test both page types
-- [ ] 2.4 Test: Ensure dynamic router correctly renders categories and location pages with correct metadata
+- [x] 2.1 Create `src/content.config.ts` (updated for Astro v6+) defining pages schema (`hub` vs `spoke`, landmarks, parentHub)
+- [x] 2.2 Create `src/pages/[slug].astro` dynamic route template to handle rendering for hubs and spokes
+- [x] 2.3 Add sample Markdown files in `src/content/pages/` to test both page types
+- [x] 2.4 Test: Ensure dynamic router correctly renders categories and location pages with correct metadata
 
 ## Phase 3: Dynamic Silo Linking (Unit 3)
 

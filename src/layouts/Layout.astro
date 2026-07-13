@@ -1,23 +1,676 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  h1: string;
+  type?: 'hub' | 'spoke';
+  service?: string;
+  locationName?: string;
+  parentHub?: string;
+  landmarks?: string[];
+  neighborhoodContext?: string;
+}
+
+const {
+  title,
+  description,
+  h1,
+  type = 'hub',
+  service,
+  locationName,
+  parentHub,
+  landmarks = [],
+  neighborhoodContext
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://elbuenmaestrocancun.com');
+
+// JSON-LD structured schema for local business SEO
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "MasonryContractor",
+  "name": "El Buen Maestro",
+  "description": description,
+  "url": canonicalURL.toString(),
+  "telephone": "+529981234567",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": locationName || "Cancún",
+    "addressRegion": "Quintana Roo",
+    "addressCountry": "MX"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "21.1619",
+    "longitude": "-86.8515"
+  },
+  "areaServed": {
+    "@type": "AdministrativeArea",
+    "name": locationName || "Cancún"
+  },
+  "image": "https://elbuenmaestrocancun.com/assets/logo.png"
+};
+---
+
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Schema Markup -->
+    <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-container">
+        <a href="/" class="logo-link">
+          <span class="logo-accent">👷‍♂️</span>
+          <span class="logo-text">El Buen Maestro</span>
+        </a>
+        <nav class="nav-menu">
+          <a href="/construccion-bardas" class="nav-link">Construcción de Bardas</a>
+          <a href="#contacto" class="btn-quote">Cotizar Gratis</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero-section">
+        <div class="container hero-container">
+          <div class="badge">
+            <span class="badge-icon">📍</span>
+            <span>Albañiles en {locationName || "Cancún"}</span>
+          </div>
+          <h1>{h1}</h1>
+          <p class="hero-description">{description}</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="container grid-container">
+          <!-- Main Content Column -->
+          <article class="main-article">
+            <div class="article-content">
+              <slot />
+            </div>
+
+            {landmarks.length > 0 && (
+              <div class="landmarks-box">
+                <h3>📍 Cobertura y Puntos de Interés Cercanos</h3>
+                <p>Ofrecemos nuestros servicios en la zona de <strong>{locationName || "Cancún"}</strong> y áreas aledañas, cubriendo referencias importantes como:</p>
+                <ul class="landmarks-list">
+                  {landmarks.map((landmark) => (
+                    <li>{landmark}</li>
+                  ))}
+                </ul>
+                {neighborhoodContext && (
+                  <p class="context-p"><em>Contexto local: {neighborhoodContext}</em></p>
+                )}
+              </div>
+            )}
+          </article>
+
+          <!-- Sidebar Form Column -->
+          <aside class="sidebar">
+            <div class="sticky-box" id="contacto">
+              <div class="form-header">
+                <h3>Cotización Gratuita</h3>
+                <p>Déjenos sus datos y le responderemos en menos de 24 horas.</p>
+              </div>
+              
+              <!-- LeadForm Placeholder / Shell -->
+              <div class="form-shell">
+                <slot name="lead-form">
+                  <div class="form-placeholder">
+                    <p><em>Formulario de contacto de albañilería local</em></p>
+                    <div class="dummy-form">
+                      <div class="input-group">
+                        <label>Nombre</label>
+                        <input type="text" placeholder="Ej. Juan Pérez" disabled />
+                      </div>
+                      <div class="input-group">
+                        <label>Teléfono</label>
+                        <input type="tel" placeholder="Ej. 998 123 4567" disabled />
+                      </div>
+                      <div class="input-group">
+                        <label>Mensaje</label>
+                        <textarea placeholder="Cuéntenos sobre su proyecto..." rows="3" disabled></textarea>
+                      </div>
+                      <button type="button" class="btn-submit" disabled>Enviar Solicitud</button>
+                    </div>
+                  </div>
+                </slot>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Silo Linking Section -->
+      <section class="silo-section">
+        <div class="container">
+          <slot name="silo-links" />
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <h4>El Buen Maestro</h4>
+          <p>Servicios profesionales de albañilería, acabados finos y construcción de bardas en todo Cancún y Quintana Roo.</p>
+        </div>
+        <div class="footer-links">
+          <h5>Servicios</h5>
+          <ul>
+            <li><a href="/construccion-bardas">Construcción de Bardas</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h5>Contacto</h5>
+          <p>📱 WhatsApp/Tel: 998 123 4567</p>
+          <p>📍 Cancún, Quintana Roo, México</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; {new Date().getFullYear()} El Buen Maestro. Todos los derechos reservados. Diseñado para SEO Local.</p>
+      </div>
+    </footer>
+  </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global>
+  /* Base Variables and System Design */
+  :root {
+    --bg-dark: #0b0d10;
+    --bg-dark-card: #13171e;
+    --bg-light: #f8fafc;
+    --text-dark: #f1f5f9;
+    --text-muted: #94a3b8;
+    --primary: #f59e0b; /* Golden Amber */
+    --primary-hover: #d97706;
+    --border-color: #1e293b;
+    --accent: #ea580c; /* Terracotta Orange */
+    --gradient-hero: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+    --font-heading: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --max-width: 1200px;
+  }
+
+  /* Reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-body);
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+  }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    width: 100%;
+  }
+
+  /* Header */
+  .site-header {
+    background-color: rgba(11, 13, 16, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: 1rem 0;
+  }
+
+  .header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--text-dark);
+  }
+
+  .logo-accent {
+    font-size: 1.5rem;
+  }
+
+  .nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .nav-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--primary);
+  }
+
+  .btn-quote {
+    background-color: var(--primary);
+    color: #0b0d10;
+    text-decoration: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+  }
+
+  .btn-quote:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
+  }
+
+  /* Hero Section */
+  .hero-section {
+    background: var(--gradient-hero);
+    position: relative;
+    padding: 4.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .hero-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .badge {
+    background-color: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--primary);
+    padding: 0.4rem 0.8rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 2.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-dark);
+    max-width: 800px;
+    background: linear-gradient(to right, #ffffff, #cbd5e1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-description {
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    max-width: 650px;
+  }
+
+  /* Content and Grid Layout */
+  .content-section {
+    padding: 3rem 0;
+  }
+
+  .grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 992px) {
+    .grid-container {
+      grid-template-columns: 7fr 4fr;
+    }
+  }
+
+  .main-article {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* Typographic styling for article body */
+  .article-content {
+    line-height: 1.7;
+    font-size: 1.05rem;
+    color: #e2e8f0;
+  }
+
+  .article-content p {
+    margin-bottom: 1.5rem;
+  }
+
+  .article-content h2, 
+  .article-content h3 {
+    font-family: var(--font-heading);
+    color: var(--text-dark);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 700;
+  }
+
+  .article-content h2 {
+    font-size: 1.75rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+  }
+
+  .article-content h3 {
+    font-size: 1.35rem;
+  }
+
+  .article-content ul, 
+  .article-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .article-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .article-content strong {
+    color: var(--primary);
+  }
+
+  /* Landmarks Box */
+  .landmarks-box {
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .landmarks-box h3 {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .landmarks-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+    list-style-type: none !important;
+    padding-left: 0 !important;
+  }
+
+  .landmarks-list li {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .landmarks-list li::before {
+    content: "📍";
+    font-size: 0.85rem;
+  }
+
+  .context-p {
+    margin-top: 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    border-left: 3px solid var(--primary);
+    padding-left: 0.75rem;
+  }
+
+  /* Sidebar and Lead Form Shell */
+  .sidebar {
+    position: relative;
+  }
+
+  .sticky-box {
+    position: sticky;
+    top: 5.5rem;
+    background-color: var(--bg-dark-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .form-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-dark);
+  }
+
+  .form-header p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* Placeholder inputs styled beautifully to mimic a working form */
+  .form-placeholder {
+    opacity: 0.95;
+  }
+
+  .form-placeholder em {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .dummy-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .input-group label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .input-group input, 
+  .input-group textarea {
+    background-color: #1a202c;
+    border: 1px solid #2d3748;
+    color: var(--text-dark);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    width: 100%;
+    transition: all 0.2s ease;
+  }
+
+  .btn-submit {
+    background-color: var(--primary);
+    color: #0b0d10;
+    border: none;
+    padding: 0.85rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  /* Silo Linking Section */
+  .silo-section {
+    background-color: rgba(255, 255, 255, 0.01);
+    border-top: 1px solid var(--border-color);
+    padding: 3rem 0;
+    margin-top: 3rem;
+  }
+
+  /* Footer */
+  .site-footer {
+    background-color: #06080a;
+    border-top: 1px solid var(--border-color);
+    padding: 4rem 0 2rem 0;
+    margin-top: auto;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-bottom: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+  }
+
+  .footer-brand h4 {
+    color: var(--text-dark);
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .footer-brand p {
+    line-height: 1.6;
+    max-width: 320px;
+  }
+
+  .footer-links h5, 
+  .footer-contact h5 {
+    color: var(--text-dark);
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+
+  .footer-links ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--primary);
+  }
+
+  .footer-contact p {
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+  }
 </style>
