@@ -1,0 +1,46 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+
+// Generate static paths for all pages except the homepage
+export async function getStaticPaths() {
+  const pages = await getCollection('pages');
+  
+  // Filter out the home page as it is handled by index.astro
+  const filteredPages = pages.filter((page) => page.id !== 'index');
+
+  return filteredPages.map((page) => ({
+    params: { slug: page.id },
+    props: { page },
+  }));
+}
+
+const { page } = Astro.props;
+const { Content } = await render(page);
+
+const {
+  title,
+  description,
+  h1,
+  type,
+  service,
+  locationName,
+  parentHub,
+  landmarks,
+  neighborhoodContext
+} = page.data;
+---
+
+<Layout
+  title={title}
+  description={description}
+  h1={h1}
+  type={type}
+  service={service}
+  locationName={locationName}
+  parentHub={parentHub}
+  landmarks={landmarks}
+  neighborhoodContext={neighborhoodContext}
+>
+  <Content />
+</Layout>

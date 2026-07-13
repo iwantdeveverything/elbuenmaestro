@@ -1,11 +1,25 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { getEntry, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// Fetch the index page entry from the content collection
+const entry = await getEntry('pages', 'index');
+
+if (!entry) {
+  throw new Error("Could not find 'index' entry in pages content collection. Please ensure src/content/pages/index.md exists.");
+}
+
+const { Content } = await render(entry);
+const { title, description, h1, type, service, landmarks } = entry.data;
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title={title}
+  description={description}
+  h1={h1}
+  type={type}
+  service={service}
+  landmarks={landmarks}
+>
+  <Content />
 </Layout>
