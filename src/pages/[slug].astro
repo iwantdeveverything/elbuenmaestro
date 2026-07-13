@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import SiloLinks from '../components/SiloLinks.astro';
 
 // Generate static paths for all pages except the homepage
 export async function getStaticPaths() {
@@ -43,4 +44,5 @@ const {
   neighborhoodContext={neighborhoodContext}
 >
   <Content />
+  <SiloLinks slot="silo-links" page={page} />
 </Layout>

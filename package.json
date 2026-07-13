@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check",
+    "test": "node --experimental-strip-types --test src/utils/siloLinking.test.ts",
     "astro": "astro"
   },
   "dependencies": {

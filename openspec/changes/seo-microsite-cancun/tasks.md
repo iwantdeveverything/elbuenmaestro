@@ -41,9 +41,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Dynamic Silo Linking (Unit 3)
 
-- [ ] 3.1 Create query helper `src/utils/siloLinking.ts` to get parent, child, and lateral pages
-- [ ] 3.2 Create `src/components/SiloLinks.astro` UI component to render links from the helper
-- [ ] 3.3 Test: Verify silo links logic correctly isolates hubs and links lateral location pages in unit tests
+- [x] 3.1 Create query helper `src/utils/siloLinking.ts` to get parent, child, and lateral pages
+- [x] 3.2 Create `src/components/SiloLinks.astro` UI component to render links from the helper
+- [x] 3.3 Test: Verify silo links logic correctly isolates hubs and links lateral location pages in unit tests
 
 ## Phase 4: Lead Capture (Unit 4)
 
