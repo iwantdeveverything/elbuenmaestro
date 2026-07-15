@@ -7,7 +7,7 @@ const pages = defineCollection({
     title: z.string(),
     description: z.string(),
     h1: z.string(),
-    type: z.enum(['hub', 'spoke']),
+    type: z.enum(['hub', 'spoke', 'legal']),
     service: z.string(),
     locationName: z.string().optional(),
     locationSlug: z.string().optional(),

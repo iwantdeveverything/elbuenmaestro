@@ -48,6 +48,6 @@ const {
   neighborhoodContext={neighborhoodContext}
 >
   <Content />
-  <LeadForm slot="lead-form" locationName={locationName} />
-  <SiloLinks slot="silo-links" page={page} />
+  {type !== 'legal' && <LeadForm slot="lead-form" locationName={locationName} />}
+  {type !== 'legal' && <SiloLinks slot="silo-links" page={page} />}
 </Layout>

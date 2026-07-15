@@ -74,6 +74,16 @@ const mockPages: SiloPageEntry[] = [
       locationName: 'Centro',
     },
   },
+  {
+    id: 'politica-privacidad',
+    data: {
+      title: 'Política de Privacidad',
+      description: 'Política de Privacidad de El Buen Maestro',
+      h1: 'Política de Privacidad',
+      type: 'legal',
+      service: 'legal',
+    },
+  },
 ];
 
 test('Homepage Silo Linking - returns links to main Hubs', () => {
@@ -144,3 +154,33 @@ test('Spoke Silo Linking - returns upward parent, home, and lateral links', () =
     'Lateral same-service-other-location link must be nested'
   );
 });
+
+test('Legal Silo Linking - returns legal type and empty/ignored structure', () => {
+  const legalPage = mockPages.find((p) => p.id === 'politica-privacidad')!;
+  const result = getSiloLinks(legalPage, mockPages);
+
+  assert.strictEqual(result.type, 'legal');
+  assert.deepStrictEqual(result.hubs || [], []);
+  assert.deepStrictEqual(result.spokes || [], []);
+  assert.deepStrictEqual(result.laterals || [], []);
+  assert.strictEqual(result.parentHub, undefined);
+  assert.strictEqual(result.home, undefined);
+});
+
+test('Exclusion from calculations - legal pages are not included in hubs/spokes/laterals of other pages', () => {
+  // 1. Check home page hubs list does not contain legal page
+  const homePage = mockPages.find((p) => p.id === 'index')!;
+  const homeResult = getSiloLinks(homePage, mockPages);
+  assert.ok(!homeResult.hubs!.some(h => h.slug === 'politica-privacidad'));
+
+  // 2. Check hub page spokes list does not contain legal page
+  const hubPage = mockPages.find((p) => p.id === 'construccion-bardas')!;
+  const hubResult = getSiloLinks(hubPage, mockPages);
+  assert.ok(!hubResult.spokes!.some(s => s.slug === 'politica-privacidad'));
+
+  // 3. Check spoke page laterals list does not contain legal page
+  const spokePage = mockPages.find((p) => p.id === 'bardas-centro')!;
+  const spokeResult = getSiloLinks(spokePage, mockPages);
+  assert.ok(!spokeResult.laterals!.some(l => l.slug === 'politica-privacidad'));
+});
+

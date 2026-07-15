@@ -1,9 +1,11 @@
 ---
+import CookieBanner from '../components/CookieBanner.astro';
+
 interface Props {
   title: string;
   description: string;
   h1: string;
-  type?: 'hub' | 'spoke';
+  type?: 'hub' | 'spoke' | 'legal';
   service?: string;
   locationName?: string;
   parentHub?: string;
@@ -162,19 +164,19 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     <!-- Schema Markup (@graph) -->
     <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
 
-    <!-- Google Tag Manager -->
-    <script is:inline>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-M6LW5F8P');</script>
-    <!-- End Google Tag Manager -->
+    <!-- Google Consent Mode v2 Default Settings -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied'
+      });
+    </script>
   </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-M6LW5F8P"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
     <header class="site-header">
       <div class="container header-container">
         <a href="/" class="logo-link">
@@ -195,7 +197,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
 
     <main>
       <!-- Breadcrumbs -->
-      {!isHome && breadcrumbs.length > 1 && (
+      {type !== 'legal' && !isHome && breadcrumbs.length > 1 && (
         <nav class="breadcrumb-nav" aria-label="Ruta de navegación">
           <div class="container">
             <ol class="breadcrumb-list">
@@ -215,24 +217,26 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
 
       <section class="hero-section">
         <div class="container hero-container">
-          <div class="badge">
-            <span class="badge-icon">📍</span>
-            <span>Albañiles en {locationName || "Cancún"}</span>
-          </div>
+          {type !== 'legal' && (
+            <div class="badge">
+              <span class="badge-icon">📍</span>
+              <span>Albañiles en {locationName || "Cancún"}</span>
+            </div>
+          )}
           <h1>{h1}</h1>
           <p class="hero-description">{description}</p>
         </div>
       </section>
 
       <section class="content-section">
-        <div class="container grid-container">
+        <div class={type === 'legal' ? 'container full-width-container' : 'container grid-container'}>
           <!-- Main Content Column -->
           <article class="main-article">
             <div class="article-content">
               <slot />
             </div>
 
-            {landmarks.length > 0 && (
+            {type !== 'legal' && landmarks.length > 0 && (
               <div class="landmarks-box">
                 <h3>📍 Cobertura y Puntos de Interés Cercanos</h3>
                 <p>Ofrecemos nuestros servicios en la zona de <strong>{locationName || "Cancún"}</strong> y áreas aledañas, cubriendo referencias importantes como:</p>
@@ -249,47 +253,51 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
           </article>
 
           <!-- Sidebar Form Column -->
-          <aside class="sidebar">
-            <div class="sticky-box" id="contacto">
-              <div class="form-header">
-                <h3>Cotización Gratuita</h3>
-                <p>Déjenos sus datos y le responderemos en menos de 24 horas.</p>
-              </div>
-              
-              <!-- LeadForm Placeholder / Shell -->
-              <div class="form-shell">
-                <slot name="lead-form">
-                  <div class="form-placeholder">
-                    <p><em>Formulario de contacto de albañilería local</em></p>
-                    <div class="dummy-form">
-                      <div class="input-group">
-                        <label>Nombre</label>
-                        <input type="text" placeholder="Ej. Juan Pérez" disabled />
+          {type !== 'legal' && (
+            <aside class="sidebar">
+              <div class="sticky-box" id="contacto">
+                <div class="form-header">
+                  <h3>Cotización Gratuita</h3>
+                  <p>Déjenos sus datos y le responderemos en menos de 24 horas.</p>
+                </div>
+                
+                <!-- LeadForm Placeholder / Shell -->
+                <div class="form-shell">
+                  <slot name="lead-form">
+                    <div class="form-placeholder">
+                      <p><em>Formulario de contacto de albañilería local</em></p>
+                      <div class="dummy-form">
+                        <div class="input-group">
+                          <label>Nombre</label>
+                          <input type="text" placeholder="Ej. Juan Pérez" disabled />
+                        </div>
+                        <div class="input-group">
+                          <label>Teléfono</label>
+                          <input type="tel" placeholder="Ej. 998 123 4567" disabled />
+                        </div>
+                        <div class="input-group">
+                          <label>Mensaje</label>
+                          <textarea placeholder="Cuéntenos sobre su proyecto..." rows="3" disabled></textarea>
+                        </div>
+                        <button type="button" class="btn-submit" disabled>Enviar Solicitud</button>
                       </div>
-                      <div class="input-group">
-                        <label>Teléfono</label>
-                        <input type="tel" placeholder="Ej. 998 123 4567" disabled />
-                      </div>
-                      <div class="input-group">
-                        <label>Mensaje</label>
-                        <textarea placeholder="Cuéntenos sobre su proyecto..." rows="3" disabled></textarea>
-                      </div>
-                      <button type="button" class="btn-submit" disabled>Enviar Solicitud</button>
                     </div>
-                  </div>
-                </slot>
+                  </slot>
+                </div>
               </div>
-            </div>
-          </aside>
+            </aside>
+          )}
         </div>
       </section>
 
       <!-- Silo Linking Section -->
-      <section class="silo-section">
-        <div class="container">
-          <slot name="silo-links" />
-        </div>
-      </section>
+      {type !== 'legal' && (
+        <section class="silo-section">
+          <div class="container">
+            <slot name="silo-links" />
+          </div>
+        </section>
+      )}
     </main>
 
     <footer class="site-footer">
@@ -320,6 +328,10 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
       </div>
       <div class="footer-bottom">
         <p>&copy; {new Date().getFullYear()} El Buen Maestro — Albañiles en Cancún. Todos los derechos reservados.</p>
+        <div class="footer-legal">
+          <a href="/politica-privacidad" rel="nofollow">Política de Privacidad</a> | 
+          <a href="/politica-cookies" rel="nofollow">Política de Cookies</a>
+        </div>
       </div>
     </footer>
 
@@ -331,6 +343,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
         toggle.setAttribute('aria-expanded', String(open));
       });
     </script>
+    <CookieBanner />
   </body>
 </html>
 
@@ -350,6 +363,30 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     --font-heading: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
     --max-width: 1200px;
+  }
+
+  .full-width-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    width: 100%;
+  }
+
+  .footer-legal {
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .footer-legal a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+    margin: 0 0.5rem;
+  }
+
+  .footer-legal a:hover {
+    color: var(--primary);
   }
 
   /* Reset */

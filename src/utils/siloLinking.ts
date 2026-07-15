@@ -4,7 +4,7 @@ export interface SiloPageData {
   title: string;
   description: string;
   h1: string;
-  type: 'hub' | 'spoke';
+  type: 'hub' | 'spoke' | 'legal';
   service: string;
   locationName?: string;
   locationSlug?: string;
@@ -25,7 +25,7 @@ export interface SiloLink {
 }
 
 export interface SiloLinksResult {
-  type: 'home' | 'hub' | 'spoke';
+  type: 'home' | 'hub' | 'spoke' | 'legal';
   hubs?: SiloLink[];
   spokes?: SiloLink[];
   parentHub?: SiloLink;
@@ -44,7 +44,17 @@ export function getSiloLinks(
   currentPage: SiloPageEntry,
   allPages: SiloPageEntry[]
 ): SiloLinksResult {
+  if (currentPage.data.type === 'legal') {
+    return {
+      type: 'legal',
+      hubs: [],
+      spokes: [],
+      laterals: [],
+    };
+  }
+
   const isHome = currentPage.id === 'index';
+
 
   if (isHome) {
     const hubs = allPages
