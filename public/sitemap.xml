@@ -3,257 +3,257 @@
 
   <!-- Home -->
   <url>
-    <loc>https://elbuenmaestrocancun.com/</loc>
+    <loc>https://elbuenmaestro.vercel.app/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- Hubs -->
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- Spokes: Construcción de Bardas -->
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/bonfil</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/bonfil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/centro</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/centro</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/cumbres</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/cumbres</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/gran-santa-fe</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/gran-santa-fe</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/jardines-del-sur</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/jardines-del-sur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/prado-norte</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/prado-norte</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/puerto-cancun</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/puerto-cancun</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/puerto-juarez</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/puerto-juarez</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/villas-del-mar</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/villas-del-mar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/villas-otoch</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/villas-otoch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/construccion-bardas/zona-hotelera</loc>
+    <loc>https://elbuenmaestro.vercel.app/construccion-bardas/zona-hotelera</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- Spokes: Pisos y Azulejos -->
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/bonfil</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/bonfil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/centro</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/centro</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/cumbres</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/cumbres</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/gran-santa-fe</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/gran-santa-fe</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/jardines-del-sur</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/jardines-del-sur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/prado-norte</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/prado-norte</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/puerto-cancun</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/puerto-cancun</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/puerto-juarez</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/puerto-juarez</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/villas-del-mar</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/villas-del-mar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/villas-otoch</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/villas-otoch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/pisos-azulejos/zona-hotelera</loc>
+    <loc>https://elbuenmaestro.vercel.app/pisos-azulejos/zona-hotelera</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- Spokes: Remodelación y Acabados -->
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/bonfil</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/bonfil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/centro</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/centro</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/cumbres</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/cumbres</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/gran-santa-fe</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/gran-santa-fe</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/jardines-del-sur</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/jardines-del-sur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/prado-norte</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/prado-norte</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/puerto-cancun</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/puerto-cancun</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/puerto-juarez</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/puerto-juarez</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/villas-del-mar</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/villas-del-mar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/villas-otoch</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/villas-otoch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/remodelacion-acabados/zona-hotelera</loc>
+    <loc>https://elbuenmaestro.vercel.app/remodelacion-acabados/zona-hotelera</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <!-- Spokes: Reparaciones Estructurales -->
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/bonfil</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/bonfil</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/centro</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/centro</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/cumbres</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/cumbres</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/gran-santa-fe</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/gran-santa-fe</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/jardines-del-sur</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/jardines-del-sur</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/prado-norte</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/prado-norte</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/puerto-cancun</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/puerto-cancun</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/puerto-juarez</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/puerto-juarez</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/villas-del-mar</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/villas-del-mar</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/villas-otoch</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/villas-otoch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://elbuenmaestrocancun.com/reparaciones-estructurales/zona-hotelera</loc>
+    <loc>https://elbuenmaestro.vercel.app/reparaciones-estructurales/zona-hotelera</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

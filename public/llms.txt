@@ -9,13 +9,13 @@ Teléfono / WhatsApp: 998 493 4110
 
 ## Servicios Principales
 
-- [Construcción de Bardas y Muros Perimetrales en Cancún](https://elbuenmaestrocancun.com/construccion-bardas): Levantamiento de muros de block, cadenas y castillos con refuerzo estructural. Materiales resistentes a la humedad y salitre del Caribe.
+- [Construcción de Bardas y Muros Perimetrales en Cancún](https://elbuenmaestro.vercel.app/construccion-bardas): Levantamiento de muros de block, cadenas y castillos con refuerzo estructural. Materiales resistentes a la humedad y salitre del Caribe.
 
-- [Instalación de Pisos y Azulejos en Cancún](https://elbuenmaestrocancun.com/pisos-azulejos): Colocación de loseta, porcelanato y mosaico en baños, cocinas, terrazas y exteriores. Trabajos de nivelación y preparación de base incluidos.
+- [Instalación de Pisos y Azulejos en Cancún](https://elbuenmaestro.vercel.app/pisos-azulejos): Colocación de loseta, porcelanato y mosaico en baños, cocinas, terrazas y exteriores. Trabajos de nivelación y preparación de base incluidos.
 
-- [Remodelación y Acabados de Albañilería en Cancún](https://elbuenmaestrocancun.com/remodelacion-acabados): Aplanado de paredes (enjarre/repello), yeso decorativo, afinados y ampliaciones de habitaciones. Acabados resistentes a la brisa marina.
+- [Remodelación y Acabados de Albañilería en Cancún](https://elbuenmaestro.vercel.app/remodelacion-acabados): Aplanado de paredes (enjarre/repello), yeso decorativo, afinados y ampliaciones de habitaciones. Acabados resistentes a la brisa marina.
 
-- [Reparación de Grietas, Humedades y Salitre en Cancún](https://elbuenmaestrocancun.com/reparaciones-estructurales): Diagnóstico y solución de cuarteaduras estructurales, filtraciones, eflorescencia salina y demolición menor de muros dañados.
+- [Reparación de Grietas, Humedades y Salitre en Cancún](https://elbuenmaestro.vercel.app/reparaciones-estructurales): Diagnóstico y solución de cuarteaduras estructurales, filtraciones, eflorescencia salina y demolición menor de muros dañados.
 
 ## Zonas de Cobertura
 
@@ -27,7 +27,7 @@ Zona Hotelera · Alfredo V. Bonfil · Centro Cancún · Prado Norte · Jardines 
 - **Tipo**: Contratista de albañilería (MasonryContractor)
 - **Ubicación**: Cancún, Quintana Roo, México
 - **Teléfono**: +52 998 493 4110
-- **Sitio web**: https://elbuenmaestrocancun.com
+- **Sitio web**: https://elbuenmaestro.vercel.app
 - **Coordenadas**: 21.1619° N, 86.8515° O
 - **Tiempo de respuesta**: menos de 24 horas
 - **Cotización**: Gratuita y sin compromiso

@@ -34,4 +34,4 @@ Allow: /
 User-agent: Amazonbot
 Allow: /
 
-Sitemap: https://elbuenmaestrocancun.com/sitemap.xml
+Sitemap: https://elbuenmaestro.vercel.app/sitemap.xml
