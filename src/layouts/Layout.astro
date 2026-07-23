@@ -328,9 +328,12 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
       </div>
       <div class="footer-bottom">
         <p>&copy; {new Date().getFullYear()} El Buen Maestro — Albañiles en Cancún. Todos los derechos reservados.</p>
+        <p class="footer-developer">
+          Desarrollado por <a href="https://hstrejoluna-monorepo-portfolio.vercel.app/" target="_blank" rel="noopener noreferrer">HS Trejo Luna</a>
+        </p>
         <div class="footer-legal">
-          <a href="/politica-privacidad" rel="nofollow">Política de Privacidad</a> | 
-          <a href="/politica-cookies" rel="nofollow">Política de Cookies</a>
+          <a href="/politica-privacidad">Política de Privacidad</a> | 
+          <a href="/politica-cookies">Política de Cookies</a>
         </div>
       </div>
     </footer>
@@ -370,6 +373,22 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     margin: 0 auto;
     padding: 0 1.5rem;
     width: 100%;
+  }
+
+  .footer-developer {
+    margin-top: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .footer-developer a {
+    color: var(--text-muted);
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+
+  .footer-developer a:hover {
+    color: var(--primary);
   }
 
   .footer-legal {
