@@ -152,8 +152,15 @@
   }
 </style>
 
-<script is:inline>
-  (function() {
+<script>
+  declare global {
+    interface Window {
+      dataLayer: any[];
+      ga4Loaded?: boolean;
+    }
+  }
+
+  document.addEventListener('astro:page-load', () => {
     const STORAGE_KEY = 'cookie-consent';
     const GA_MEASUREMENT_ID = 'G-NT2539TFKL';
 
@@ -161,9 +168,9 @@
     const btnAccept = document.getElementById('btn-accept');
     const btnReject = document.getElementById('btn-reject');
 
-    function updateGTMConsent(status) {
+    function updateGTMConsent(status: string) {
       window.dataLayer = window.dataLayer || [];
-      function gtag() { window.dataLayer.push(arguments); }
+      function gtag(...args: any[]) { window.dataLayer.push(args); }
       gtag('consent', 'update', {
         'ad_storage': status,
         'analytics_storage': status,
@@ -176,13 +183,13 @@
       if (window.ga4Loaded) return;
       window.ga4Loaded = true;
 
-      var script = document.createElement('script');
+      const script = document.createElement('script');
       script.async = true;
       script.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_MEASUREMENT_ID;
       document.head.appendChild(script);
 
       window.dataLayer = window.dataLayer || [];
-      function gtag() { window.dataLayer.push(arguments); }
+      function gtag(...args: any[]) { window.dataLayer.push(args); }
       gtag('js', new Date());
       gtag('config', GA_MEASUREMENT_ID);
     }
@@ -204,23 +211,6 @@
       }
     }
 
-    if (btnAccept) {
-      btnAccept.addEventListener('click', function() {
-        localStorage.setItem(STORAGE_KEY, 'accepted');
-        updateGTMConsent('granted');
-        injectGA4();
-        hideBanner();
-      });
-    }
-
-    if (btnReject) {
-      btnReject.addEventListener('click', function() {
-        localStorage.setItem(STORAGE_KEY, 'rejected');
-        updateGTMConsent('denied');
-        hideBanner();
-      });
-    }
-
     function hideBanner() {
       if (!banner) return;
       banner.classList.remove('visible');
@@ -230,5 +220,28 @@
         banner.removeEventListener('transitionend', handler);
       });
     }
-  })();
+
+    if (btnAccept) {
+      const handleAccept = () => {
+        localStorage.setItem(STORAGE_KEY, 'accepted');
+        updateGTMConsent('granted');
+        injectGA4();
+        hideBanner();
+      };
+      btnAccept.removeEventListener('click', (btnAccept as any)._handleAccept);
+      (btnAccept as any)._handleAccept = handleAccept;
+      btnAccept.addEventListener('click', handleAccept);
+    }
+
+    if (btnReject) {
+      const handleReject = () => {
+        localStorage.setItem(STORAGE_KEY, 'rejected');
+        updateGTMConsent('denied');
+        hideBanner();
+      };
+      btnReject.removeEventListener('click', (btnReject as any)._handleReject);
+      (btnReject as any)._handleReject = handleReject;
+      btnReject.addEventListener('click', handleReject);
+    }
+  });
 </script>

@@ -88,9 +88,8 @@ const locations = [
 </div>
 
 <script>
-  // Wait for the DOM content to be parsed
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('lead-form') as HTMLFormElement;
+  document.addEventListener('astro:page-load', () => {
+    const form = document.getElementById('lead-form') as HTMLFormElement | null;
     const submitBtn = document.getElementById('btn-submit-lead') as HTMLButtonElement | null;
     const errorSummary = document.getElementById('form-error-summary');
 
@@ -99,7 +98,7 @@ const locations = [
     const btnText = submitBtn.querySelector('.btn-text');
     const spinner = submitBtn.querySelector('.spinner') as HTMLElement | null;
 
-    form.addEventListener('submit', (e) => {
+    const handleSubmit = (e: Event) => {
       e.preventDefault();
 
       // Reset previous error states
@@ -172,7 +171,7 @@ const locations = [
         }
         setLoading(false);
       }
-    });
+    };
 
     function showError(id: string, message: string) {
       const input = document.getElementById(id);
@@ -190,17 +189,21 @@ const locations = [
       if (isLoading) {
         if (btnText) btnText.textContent = 'Enviando...';
         if (spinner) spinner.style.display = 'inline-block';
-        form.querySelectorAll('input, textarea, select').forEach(input => {
+        form?.querySelectorAll('input, textarea, select').forEach(input => {
           (input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).disabled = true;
         });
       } else {
         if (btnText) btnText.textContent = 'Enviar Solicitud';
         if (spinner) spinner.style.display = 'none';
-        form.querySelectorAll('input, textarea, select').forEach(input => {
+        form?.querySelectorAll('input, textarea, select').forEach(input => {
           (input as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).disabled = false;
         });
       }
     }
+
+    form.removeEventListener('submit', (form as any)._handleSubmit);
+    (form as any)._handleSubmit = handleSubmit;
+    form.addEventListener('submit', handleSubmit);
   });
 </script>
 

@@ -1,5 +1,7 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import CookieBanner from '../components/CookieBanner.astro';
+import '../styles/global.css';
 
 interface Props {
   title: string;
@@ -175,6 +177,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
         'ad_personalization': 'denied'
       });
     </script>
+    <ClientRouter />
   </head>
   <body>
     <header class="site-header">
@@ -339,11 +342,34 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     </footer>
 
     <script>
-      const toggle = document.getElementById('nav-toggle');
-      const menu = document.getElementById('nav-menu');
-      toggle?.addEventListener('click', () => {
-        const open = menu?.classList.toggle('nav-open');
-        toggle.setAttribute('aria-expanded', String(open));
+      document.addEventListener('astro:page-load', () => {
+        const toggle = document.getElementById('nav-toggle');
+        const menu = document.getElementById('nav-menu');
+        if (toggle && menu) {
+          const handleToggle = () => {
+            const open = menu.classList.toggle('nav-open');
+            toggle.setAttribute('aria-expanded', String(open));
+          };
+          toggle.removeEventListener('click', (toggle as any)._handleNavToggle);
+          (toggle as any)._handleNavToggle = handleToggle;
+          toggle.addEventListener('click', handleToggle);
+        }
+
+        // Scroll reveal fallback for engines lacking native CSS animation-timeline
+        if (typeof CSS !== 'undefined' && CSS.supports && CSS.supports('animation-timeline', 'view()')) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.hero-section, .main-article, .silo-section, .landmarks-box')
+          .forEach(el => observer.observe(el));
       });
     </script>
     <CookieBanner />
