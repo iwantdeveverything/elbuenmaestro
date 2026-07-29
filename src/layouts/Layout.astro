@@ -351,7 +351,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
 </html>
 
 <style is:global>
-  /* Base Variables and System Design */
+  /* Base Variables and System Design Tokens */
   :root {
     --bg-dark: #0b0d10;
     --bg-dark-card: #13171e;
@@ -366,6 +366,29 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     --font-heading: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
     --max-width: 1200px;
+
+    /* Fluid Typography Clamps */
+    --font-size-h1: clamp(2.25rem, 5vw + 1rem, 3.5rem);
+    --font-size-h2: clamp(1.5rem, 3vw + 0.75rem, 2.25rem);
+    --font-size-h3: clamp(1.2rem, 2vw + 0.5rem, 1.5rem);
+    --font-size-body: clamp(0.95rem, 1vw + 0.75rem, 1.125rem);
+
+    /* Animation Curves & Timings */
+    --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-fast: 200ms;
+    --duration-normal: 350ms;
+
+    /* Glassmorphism Surface Tokens */
+    --glass-bg-header: rgba(11, 13, 16, 0.8);
+    --glass-bg-card: rgba(19, 23, 30, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-blur: blur(16px);
+
+    /* Focus & Form Feedback Glow Rings */
+    --focus-ring-glow: 0 0 0 3px rgba(245, 158, 11, 0.35);
+    --valid-ring-glow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    --invalid-ring-glow: 0 0 0 3px rgba(239, 68, 68, 0.25);
   }
 
   .full-width-container {
@@ -429,6 +452,14 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     overflow-x: hidden;
   }
 
+  /* Accessible Focus Ring */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    box-shadow: var(--focus-ring-glow);
+    border-radius: 4px;
+  }
+
   .container {
     max-width: var(--max-width);
     margin: 0 auto;
@@ -436,11 +467,12 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     width: 100%;
   }
 
-  /* Header */
+  /* Header Glassmorphism */
   .site-header {
-    background-color: rgba(11, 13, 16, 0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border-color);
+    background-color: var(--glass-bg-header);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--glass-border);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -504,7 +536,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
   }
 
-  /* Hero Section */
+  /* Hero Section Ambient Glow */
   .hero-section {
     background: var(--gradient-hero);
     position: relative;
@@ -522,6 +554,20 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
     bottom: 0;
     background-image: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 60%);
     pointer-events: none;
+  }
+
+  .hero-section::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(234, 88, 12, 0.05) 40%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+    filter: blur(40px);
   }
 
   .hero-container {
@@ -550,7 +596,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
 
   h1 {
     font-family: var(--font-heading);
-    font-size: 2.75rem;
+    font-size: var(--font-size-h1);
     font-weight: 800;
     line-height: 1.2;
     color: var(--text-dark);
@@ -562,7 +608,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
 
   .hero-description {
     color: var(--text-muted);
-    font-size: 1.15rem;
+    font-size: var(--font-size-body);
     line-height: 1.6;
     max-width: 650px;
   }
@@ -593,7 +639,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
   /* Typographic styling for article body */
   .article-content {
     line-height: 1.7;
-    font-size: 1.05rem;
+    font-size: var(--font-size-body);
     color: #e2e8f0;
   }
 
@@ -611,13 +657,13 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
   }
 
   .article-content h2 {
-    font-size: 1.75rem;
+    font-size: var(--font-size-h2);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 0.5rem;
   }
 
   .article-content h3 {
-    font-size: 1.35rem;
+    font-size: var(--font-size-h3);
   }
 
   .article-content ul, 
