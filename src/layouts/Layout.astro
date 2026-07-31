@@ -1,6 +1,8 @@
 ---
 import { ClientRouter } from 'astro:transitions';
 import CookieBanner from '../components/CookieBanner.astro';
+import GoogleReviewBadge from '../components/GoogleReviewBadge.astro';
+import googleReviewsData from '../data/googleReviews.json';
 import '../styles/global.css';
 
 interface Props {
@@ -85,7 +87,29 @@ const schemaGraph: object[] = [
       "name": "Cancún, Quintana Roo"
     },
     "priceRange": "$$",
-    "openingHours": "Mo-Sa 07:00-19:00"
+    "openingHours": "Mo-Sa 07:00-19:00",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": googleReviewsData.overallRating,
+      "reviewCount": googleReviewsData.totalReviews,
+      "bestRating": 5,
+      "worstRating": 1
+    },
+    "review": googleReviewsData.reviews.map((rev) => ({
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": rev.authorName || rev.author
+      },
+      "datePublished": rev.date || "2026-07-01",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": rev.rating,
+        "bestRating": 5,
+        "worstRating": 1
+      },
+      "reviewBody": rev.text
+    }))
   },
   {
     "@type": "WebSite",
@@ -373,6 +397,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
       });
     </script>
     <CookieBanner />
+    <GoogleReviewBadge />
   </body>
 </html>
 

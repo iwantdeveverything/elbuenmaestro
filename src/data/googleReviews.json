@@ -1,0 +1,40 @@
+{
+  "overallRating": 5.0,
+  "totalReviews": 3,
+  "googleMapsUrl": "https://maps.app.goo.gl/Mh3tMbML96JymJL3A",
+  "reviews": [
+    {
+      "id": "rev-1",
+      "authorName": "Hector Antonio Trejo Suarez",
+      "author": "Hector Antonio Trejo Suarez",
+      "authorPhoto": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
+      "rating": 5,
+      "date": "2026-07-24",
+      "relativeTime": "Hace 1 semana",
+      "text": "Me pasaron el contacto para realizar colado y colocación de block"
+    },
+    {
+      "id": "rev-2",
+      "authorName": "Pancho May",
+      "author": "Pancho May",
+      "authorPhoto": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+      "rating": 5,
+      "date": "2026-07-24",
+      "relativeTime": "Hace 1 semana",
+      "text": "Buen trabajo en vitro piso"
+    },
+    {
+      "id": "rev-3",
+      "authorName": "Moises Santos",
+      "author": "Moises Santos",
+      "authorPhoto": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80",
+      "rating": 5,
+      "date": "2026-07-24",
+      "relativeTime": "Hace 1 semana",
+      "text": "Excelente trabajo para remodelaciones"
+    }
+  ]
+}
