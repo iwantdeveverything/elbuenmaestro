@@ -1,0 +1,660 @@
+---
+import PlatformLayout from '../../layouts/PlatformLayout.astro';
+import { getTicketRepository } from '../../modules/tickets/infrastructure/repositoryFactory.ts';
+import { getStatusMeta } from '../../modules/tickets/domain/ticketStateMachine.ts';
+
+export const prerender = false;
+
+const repo = getTicketRepository();
+const pinCookie = Astro.cookies.get('ebm_maestro_pin')?.value;
+const maestro = pinCookie ? await repo.getMaestroByPin(pinCookie) : null;
+const misTickets = maestro ? await repo.listTickets({ maestroId: maestro.id }) : [];
+
+function formatCurrency(val: number | null | undefined): string {
+  if (val === null || val === undefined) return '$0 MXN';
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    maximumFractionDigits: 0,
+  }).format(val);
+}
+---
+
+<PlatformLayout
+  title={maestro ? `Hola, ${maestro.nombre}` : 'Portal del Maestro Albañil'}
+  subtitle={
+    maestro
+      ? `Especialidad: ${maestro.especialidad} · Sube evidencias de tus citas, presupuestos, firmas y avances de obra.`
+      : 'Ingresa tu PIN de 4 dígitos para ver tus citas asignadas y reportar avances desde el celular.'
+  }
+  roleBadge="Portal Maestro Albañil"
+  activeNav="maestro"
+>
+  {!maestro ? (
+    <div class="p-card" style="max-width: 440px; margin: 2rem auto;">
+      <div class="p-card-header">
+        <div>
+          <h2 style="font-size: 1.25rem; font-family: var(--font-heading);">
+            👷‍♂️ Ingreso Rápido con PIN
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">
+            Sin correos ni contraseñas largas. Escribe tu código PIN de 4 números.
+          </p>
+        </div>
+      </div>
+
+      <form id="maestro-login-form" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div>
+          <label class="p-label" for="maestro-pin">Tu PIN de Maestro (4 dígitos)</label>
+          <input
+            id="maestro-pin"
+            name="pin"
+            type="tel"
+            inputmode="numeric"
+            class="p-input"
+            style="font-size: 1.5rem; text-align: center; letter-spacing: 0.35em; font-weight: 800;"
+            placeholder="••••"
+            maxlength="8"
+            required
+          />
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.45rem; text-align: center;">
+            PINs activos de demostración: <strong>1024</strong> (Maestro Roberto) o <strong>2048</strong> (Maestro Miguel)
+          </p>
+        </div>
+        <p id="maestro-login-error" style="color: var(--danger); font-size: 0.85rem; display: none; text-align: center;"></p>
+        <button type="submit" class="p-btn p-btn-primary" style="padding: 0.9rem; font-size: 1rem;">
+          Ver Mis Obras Asignadas
+        </button>
+      </form>
+    </div>
+  ) : (
+    <div>
+      <!-- Top Bar Maestro -->
+      <div
+        class="p-card"
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; padding: 0.9rem 1.25rem;"
+      >
+        <div>
+          <span style="font-size: 0.92rem;">
+            Sesión activa: <strong>{maestro.nombre}</strong> (PIN <code>{maestro.pin}</code>) ·{' '}
+            <strong>{misTickets.length}</strong> tickets asignados
+          </span>
+        </div>
+        <button
+          id="btn-maestro-logout"
+          type="button"
+          class="p-btn p-btn-secondary"
+          style="padding: 0.45rem 0.9rem; font-size: 0.82rem;"
+        >
+          Cambiar de Maestro / Salir
+        </button>
+      </div>
+
+      {misTickets.length === 0 ? (
+        <div class="p-card" style="text-align: center; padding: 2.5rem;">
+          <p style="font-size: 1.05rem; color: var(--text-muted);">
+            Todavía no tienes tickets asignados en este momento.
+          </p>
+        </div>
+      ) : (
+        misTickets.map((ticket) => {
+          const meta = getStatusMeta(ticket.estado);
+          const necesitaPresupuesto =
+            ticket.estado === 'solicitud_creada' || ticket.estado === 'cita_asignada';
+          const puedeSubirAvances =
+            ticket.estado === 'presupuesto_firmado' || ticket.estado === 'en_obra';
+
+          return (
+            <article class="p-card" style={`border-left: 5px solid ${meta.badgeColor};`}>
+              <div class="p-card-header">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <span
+                      style="font-family: monospace; font-size: 1.05rem; font-weight: 800; color: var(--primary); background: rgba(245, 158, 11, 0.14); padding: 0.2rem 0.6rem; border-radius: 6px;"
+                    >
+                      {ticket.codigo}
+                    </span>
+                    <span
+                      class="p-badge"
+                      style={`background: ${meta.badgeColor}22; color: ${meta.badgeColor}; border: 1px solid ${meta.badgeColor}66;`}
+                    >
+                      {meta.label}
+                    </span>
+                  </div>
+                  <h2 style="font-size: 1.25rem; margin-top: 0.45rem;">
+                    Cliente: {ticket.clienteNombre} · 📍 {ticket.zona}
+                  </h2>
+                  {ticket.direccionReferencia && (
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">
+                      Dirección / Referencia: <strong>{ticket.direccionReferencia}</strong>
+                    </p>
+                  )}
+                  {ticket.citaFecha && (
+                    <p style="font-size: 0.9rem; color: var(--primary); margin-top: 0.2rem;">
+                      🗓️ Cita programada: <strong>{ticket.citaFecha}</strong>
+                    </p>
+                  )}
+                </div>
+
+                <a
+                  href={`/ticket/${ticket.codigo}`}
+                  target="_blank"
+                  class="p-btn p-btn-secondary"
+                  style="font-size: 0.82rem;"
+                >
+                  👁️ Abrir Ticket del Cliente
+                </a>
+              </div>
+
+              <div
+                style="background: var(--bg-card-elevated); padding: 0.9rem; border-radius: 10px; margin-bottom: 1.15rem;"
+              >
+                <span class="p-label">Lo que solicita el cliente:</span>
+                <p style="font-size: 0.95rem;">{ticket.requerimientosCliente}</p>
+                {ticket.citaNotas && (
+                  <p style="font-size: 0.85rem; color: var(--primary); margin-top: 0.35rem;">
+                    Nota de administración: {ticket.citaNotas}
+                  </p>
+                )}
+              </div>
+
+              {/* PHASE 1: Levantamiento de Presupuesto + Evidencia de Visita + Firma del Maestro */}
+              {necesitaPresupuesto && (
+                <div
+                  style="background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 12px; padding: 1.15rem;"
+                >
+                  <h3 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--primary); margin-bottom: 0.35rem;">
+                    📸 Paso 1: Subir Evidencia de Visita, Presupuesto y Tu Firma
+                  </h3>
+                  <p style="font-size: 0.86rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Toma foto del área a trabajar en la cita, detalla el presupuesto y firma en la pantalla para que el cliente lo apruebe.
+                  </p>
+
+                  <form
+                    class="submit-presupuesto-form"
+                    data-ticket-id={ticket.id}
+                    data-maestro-id={maestro.id}
+                    data-maestro-nombre={maestro.nombre}
+                    style="display: flex; flex-direction: column; gap: 0.9rem;"
+                  >
+                    <div>
+                      <label class="p-label">1. Foto de Evidencia en Sitio (Cámara o Galería) *</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        class="p-input photo-input"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label class="p-label">Observaciones de lo revisado en la visita *</label>
+                      <input
+                        name="evidenciaDescripcion"
+                        class="p-input"
+                        placeholder="Ej. Se tomaron medidas de 15m lineales y se revisó nivel del terreno"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label class="p-label">2. Alcance Detallado del Trabajo (Qué incluye el presupuesto) *</label>
+                      <textarea
+                        name="presupuestoDetalle"
+                        class="p-textarea"
+                        rows="3"
+                        placeholder="Explica qué trabajos incluye (ej. demolición, firme, colocación, limpieza)..."
+                        required
+                      ></textarea>
+                    </div>
+
+                    <div class="p-grid-3">
+                      <div>
+                        <label class="p-label">Costo Mano de Obra ($ MXN) *</label>
+                        <input
+                          name="presupuestoManoObra"
+                          type="number"
+                          min="100"
+                          step="50"
+                          class="p-input"
+                          placeholder="Ej. 14500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label class="p-label">Materiales Estimados ($ MXN) *</label>
+                        <input
+                          name="presupuestoMaterialesEstimado"
+                          type="number"
+                          min="0"
+                          step="50"
+                          class="p-input"
+                          placeholder="Ej. 8200"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label class="p-label">Días Estimados de Obra *</label>
+                        <input
+                          name="presupuestoDiasEstimados"
+                          type="number"
+                          min="1"
+                          max="180"
+                          class="p-input"
+                          placeholder="Ej. 6"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label class="p-label">3. Tu Firma Digital de Compromiso (Firma con el dedo aquí) *</label>
+                      <div class="signature-pad-wrapper">
+                        <canvas class="signature-canvas" width="500" height="150"></canvas>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.35rem; padding: 0 0.25rem;">
+                          <span style="font-size: 0.75rem; color: #475569;">
+                            Firma de: <strong>{maestro.nombre}</strong>
+                          </span>
+                          <button
+                            type="button"
+                            class="clear-signature-btn"
+                            style="background: #e2e8f0; color: #0f172a; border: none; border-radius: 5px; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;"
+                          >
+                            Borrar Firma
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button type="submit" class="p-btn p-btn-primary" style="padding: 0.85rem; font-size: 1rem;">
+                      ✅ Enviar Presupuesto y Evidencia al Cliente
+                    </button>
+                  </form>
+                </div>
+              )}
+
+              {/* WAITING FOR CLIENT SIGNATURE */}
+              {ticket.estado === 'presupuesto_enviado' && (
+                <div
+                  style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;"
+                >
+                  <strong style="color: #60a5fa; display: block;">
+                    ⏳ Presupuesto enviado ({formatCurrency((ticket.presupuestoManoObra ?? 0) + (ticket.presupuestoMaterialesEstimado ?? 0))}) — Esperando firma del cliente
+                  </strong>
+                  <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 0.25rem;">
+                    El cliente puede firmar desde su celular en <code>/ticket/{ticket.codigo}</code>. En cuanto firme, se habilita la subida de avances y compra de materiales.
+                  </p>
+                </div>
+              )}
+
+              {/* PHASE 2: En Obra -> Subir Evidencias de Avance + Materiales */}
+              {puedeSubirAvances && (
+                <div class="p-grid-2" style="margin-top: 0.5rem;">
+                  <!-- Subir Foto de Avance -->
+                  <div
+                    style="background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1rem;"
+                  >
+                    <h3 style="font-family: var(--font-heading); font-size: 1.08rem; color: var(--success); margin-bottom: 0.65rem;">
+                      📸 Subir Evidencia de Avance de Obra
+                    </h3>
+                    <form
+                      class="add-evidencia-form"
+                      data-ticket-id={ticket.id}
+                      data-autor-nombre={maestro.nombre}
+                      style="display: flex; flex-direction: column; gap: 0.75rem;"
+                    >
+                      <div>
+                        <label class="p-label">Foto del Avance Actual *</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          class="p-input photo-input"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label class="p-label">¿Qué se avanzó hoy? *</label>
+                        <textarea
+                          name="descripcion"
+                          class="p-textarea"
+                          rows="2"
+                          placeholder="Ej. Se levantó muro a 1.80m y se colaron 4 castillos..."
+                          required
+                        ></textarea>
+                      </div>
+                      <div>
+                        <label class="p-label">Porcentaje de Avance Total de la Obra *</label>
+                        <select name="porcentajeAvance" class="p-select" required>
+                          <option value="20" selected={ticket.porcentajeAvance < 25}>20% — Inicio y preparación</option>
+                          <option value="40" selected={ticket.porcentajeAvance >= 25 && ticket.porcentajeAvance < 50}>40% — Obra en proceso</option>
+                          <option value="60" selected={ticket.porcentajeAvance >= 50 && ticket.porcentajeAvance < 75}>60% — Más de la mitad</option>
+                          <option value="85" selected={ticket.porcentajeAvance >= 75 && ticket.porcentajeAvance < 100}>85% — Detalles y acabados</option>
+                          <option value="100">100% — Obra Terminada y Entregada</option>
+                        </select>
+                      </div>
+                      <button type="submit" class="p-btn p-btn-primary">
+                        Publicar Foto de Avance
+                      </button>
+                    </form>
+                  </div>
+
+                  <!-- Registrar Material a Comprar / Comprado -->
+                  <div
+                    style="background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 1rem;"
+                  >
+                    <h3 style="font-family: var(--font-heading); font-size: 1.08rem; color: var(--primary); margin-bottom: 0.65rem;">
+                      🧱 Registrar Material a Comprar / Nota
+                    </h3>
+                    <form
+                      class="add-material-form"
+                      data-ticket-id={ticket.id}
+                      style="display: flex; flex-direction: column; gap: 0.7rem;"
+                    >
+                      <div>
+                        <label class="p-label">Material requerido *</label>
+                        <input
+                          name="concepto"
+                          class="p-input"
+                          placeholder="Ej. Cemento gris + Arena + Varilla 3/8"
+                          required
+                        />
+                      </div>
+                      <div class="p-grid-2">
+                        <div>
+                          <label class="p-label">Cantidad *</label>
+                          <input name="cantidad" class="p-input" placeholder="Ej. 15 bultos" required />
+                        </div>
+                        <div>
+                          <label class="p-label">Costo ($ MXN) *</label>
+                          <input
+                            name="costoEstimado"
+                            type="number"
+                            min="0"
+                            step="10"
+                            class="p-input"
+                            placeholder="Ej. 4200"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div class="p-grid-2">
+                        <div>
+                          <label class="p-label">Estado del Material</label>
+                          <select name="estado" class="p-select">
+                            <option value="pendiente_compra">Por comprar (Solicitud)</option>
+                            <option value="comprado">Comprado (Con nota)</option>
+                            <option value="entregado_en_obra">Entregado en obra</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label class="p-label">Foto de Nota / Material (Opcional)</label>
+                          <input type="file" accept="image/*" capture="environment" class="p-input photo-input" />
+                        </div>
+                      </div>
+                      <button type="submit" class="p-btn p-btn-secondary">
+                        Guardar Material en Lista
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
+            </article>
+          );
+        })
+      )}
+    </div>
+  )}
+</PlatformLayout>
+
+<script>
+  async function postAction(payload: Record<string, unknown>) {
+    const res = await fetch('/api/tickets/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  }
+
+  // Client-side image compression so construction-site mobile photos upload fast
+  function compressImageFile(file: File, maxWidth = 1000, quality = 0.78): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxWidth / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.round(img.width * scale);
+          canvas.height = Math.round(img.height * scale);
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(String(reader.result));
+            return;
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject;
+        img.src = String(reader.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Initialize touch/mouse Signature Pads
+  document.querySelectorAll('.signature-pad-wrapper').forEach((wrapper) => {
+    const canvas = wrapper.querySelector('.signature-canvas') as HTMLCanvasElement | null;
+    const clearBtn = wrapper.querySelector('.clear-signature-btn') as HTMLButtonElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    let drawing = false;
+    (canvas as any)._hasSigned = false;
+
+    const getPos = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+      };
+    };
+
+    canvas.addEventListener('pointerdown', (e) => {
+      drawing = true;
+      (canvas as any)._hasSigned = true;
+      const pos = getPos(e);
+      ctx.beginPath();
+      ctx.moveTo(pos.x, pos.y);
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing) return;
+      const pos = getPos(e);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+    });
+
+    const stopDrawing = () => {
+      drawing = false;
+    };
+    canvas.addEventListener('pointerup', stopDrawing);
+    canvas.addEventListener('pointerleave', stopDrawing);
+
+    clearBtn?.addEventListener('click', () => {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      (canvas as any)._hasSigned = false;
+    });
+  });
+
+  // Maestro PIN Login
+  const loginForm = document.getElementById('maestro-login-form') as HTMLFormElement | null;
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(loginForm);
+      const result = await postAction({
+        action: 'maestro_login',
+        pin: fd.get('pin'),
+      });
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        const err = document.getElementById('maestro-login-error');
+        if (err) {
+          err.textContent = result.error || 'PIN incorrecto.';
+          err.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  // Maestro Logout
+  const logoutBtn = document.getElementById('btn-maestro-logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      await postAction({ action: 'maestro_logout' });
+      window.location.reload();
+    });
+  }
+
+  // Submit Presupuesto + Photo + Signature
+  document.querySelectorAll('.submit-presupuesto-form').forEach((formEl) => {
+    const form = formEl as HTMLFormElement;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = form.querySelector('.photo-input') as HTMLInputElement | null;
+      const canvas = form.querySelector('.signature-canvas') as HTMLCanvasElement | null;
+
+      if (!fileInput?.files?.[0]) {
+        alert('Por favor selecciona o toma la foto de evidencia de la visita.');
+        return;
+      }
+      if (!canvas || !(canvas as any)._hasSigned) {
+        alert('Por favor dibuja tu firma en el recuadro blanco para respaldar el presupuesto.');
+        return;
+      }
+
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Subiendo evidencia y presupuesto...';
+      }
+
+      const fotoDataUrl = await compressImageFile(fileInput.files[0]);
+      const firmaMaestroData = canvas.toDataURL('image/png');
+      const fd = new FormData(form);
+
+      const result = await postAction({
+        action: 'submit_presupuesto',
+        ticketId: form.dataset.ticketId,
+        maestroId: form.dataset.maestroId,
+        firmaMaestroNombre: form.dataset.maestroNombre,
+        evidenciaFotoDataUrl: fotoDataUrl,
+        evidenciaDescripcion: fd.get('evidenciaDescripcion'),
+        presupuestoDetalle: fd.get('presupuestoDetalle'),
+        presupuestoManoObra: Number(fd.get('presupuestoManoObra')),
+        presupuestoMaterialesEstimado: Number(fd.get('presupuestoMaterialesEstimado')),
+        presupuestoDiasEstimados: Number(fd.get('presupuestoDiasEstimados')),
+        firmaMaestroData,
+      });
+
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        alert(result.error || 'Error al guardar el presupuesto.');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '✅ Enviar Presupuesto y Evidencia al Cliente';
+        }
+      }
+    });
+  });
+
+  // Submit Work Progress Photo
+  document.querySelectorAll('.add-evidencia-form').forEach((formEl) => {
+    const form = formEl as HTMLFormElement;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = form.querySelector('.photo-input') as HTMLInputElement | null;
+      if (!fileInput?.files?.[0]) {
+        alert('Por favor adjunta la foto del avance.');
+        return;
+      }
+
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Subiendo foto...';
+      }
+
+      const fotoDataUrl = await compressImageFile(fileInput.files[0]);
+      const fd = new FormData(form);
+
+      const result = await postAction({
+        action: 'add_evidencia',
+        ticketId: form.dataset.ticketId,
+        autorRol: 'maestro',
+        autorNombre: form.dataset.autorNombre,
+        descripcion: fd.get('descripcion'),
+        porcentajeAvance: Number(fd.get('porcentajeAvance')),
+        fotoDataUrl,
+      });
+
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        alert(result.error || 'Error al subir evidencia.');
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Publicar Foto de Avance';
+        }
+      }
+    });
+  });
+
+  // Submit Material Item
+  document.querySelectorAll('.add-material-form').forEach((formEl) => {
+    const form = formEl as HTMLFormElement;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = form.querySelector('.photo-input') as HTMLInputElement | null;
+      let comprobanteDataUrl: string | null = null;
+      if (fileInput?.files?.[0]) {
+        comprobanteDataUrl = await compressImageFile(fileInput.files[0]);
+      }
+
+      const fd = new FormData(form);
+      const result = await postAction({
+        action: 'add_material',
+        ticketId: form.dataset.ticketId,
+        concepto: fd.get('concepto'),
+        cantidad: fd.get('cantidad'),
+        costoEstimado: Number(fd.get('costoEstimado')),
+        estado: fd.get('estado'),
+        comprobanteDataUrl,
+      });
+
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        alert(result.error || 'Error al registrar material.');
+      }
+    });
+  });
+</script>

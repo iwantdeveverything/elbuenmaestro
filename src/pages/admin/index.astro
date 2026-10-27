@@ -1,0 +1,741 @@
+---
+import PlatformLayout from '../../layouts/PlatformLayout.astro';
+import { getTicketRepository } from '../../modules/tickets/infrastructure/repositoryFactory.ts';
+import { getStatusMeta, TICKET_STATUS_STEPS } from '../../modules/tickets/domain/ticketStateMachine.ts';
+
+export const prerender = false;
+
+const isAuthenticated = Astro.cookies.get('ebm_admin_session')?.value === 'authenticated';
+const repo = getTicketRepository();
+
+const maestros = isAuthenticated ? await repo.listMaestros() : [];
+const tickets = isAuthenticated ? await repo.listTickets() : [];
+
+const totalCerrado = tickets
+  .filter((t) => ['presupuesto_firmado', 'en_obra', 'finalizado'].includes(t.estado))
+  .reduce(
+    (sum, t) => sum + (t.presupuestoManoObra ?? 0) + (t.presupuestoMaterialesEstimado ?? 0),
+    0
+  );
+
+const citasPendientes = tickets.filter(
+  (t) => t.estado === 'solicitud_creada' || t.estado === 'cita_asignada'
+).length;
+const presupuestosPorFirmar = tickets.filter((t) => t.estado === 'presupuesto_enviado').length;
+const obrasActivas = tickets.filter(
+  (t) => t.estado === 'presupuesto_firmado' || t.estado === 'en_obra'
+).length;
+
+const origin = Astro.url.origin;
+
+function formatCurrency(val: number | null | undefined): string {
+  if (val === null || val === undefined) return '$0 MXN';
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    maximumFractionDigits: 0,
+  }).format(val);
+}
+
+function cleanPhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 10) return `52${digits}`;
+  return digits;
+}
+---
+
+<PlatformLayout
+  title="Centro de Control y Asignación de Obras"
+  subtitle="Administración de tickets, asignación de maestros albañiles, auditoría de presupuestos, firmas y evidencias."
+  roleBadge="Panel Administrador"
+  activeNav="admin"
+>
+  {!isAuthenticated ? (
+    <div class="p-card" style="max-width: 460px; margin: 2rem auto;">
+      <div class="p-card-header">
+        <div>
+          <h2 style="font-size: 1.25rem; font-family: var(--font-heading);">Acceso Administrador</h2>
+          <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
+            Ingresa tu clave de control para gestionar tickets y maestros.
+          </p>
+        </div>
+      </div>
+      <form id="admin-login-form" style="display: flex; flex-direction: column; gap: 1rem;">
+        <div>
+          <label class="p-label" for="admin-password">Contraseña de Administrador</label>
+          <input
+            id="admin-password"
+            name="password"
+            type="password"
+            class="p-input"
+            placeholder="Ingresa tu contraseña..."
+            required
+          />
+          {repo.mode !== 'supabase' && (
+            <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.4rem;">
+              Clave local por defecto (configurable en <code>ADMIN_PASSWORD</code>): <code>elbuenmaestro2026</code>
+            </p>
+          )}
+        </div>
+        <p id="login-error" style="color: var(--danger); font-size: 0.85rem; display: none;"></p>
+        <button type="submit" class="p-btn p-btn-primary">Entrar al Panel de Control</button>
+      </form>
+    </div>
+  ) : (
+    <div>
+      <!-- Top Status Banner -->
+      <div
+        class="p-card"
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 0.9rem 1.25rem;"
+      >
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span
+            class="p-badge"
+            style={
+              repo.mode === 'supabase'
+                ? 'background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4);'
+                : 'background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);'
+            }
+          >
+            {repo.mode === 'supabase'
+              ? '● Supabase PostgreSQL + Storage Activo'
+              : '⚡ Modo Demo Local Activo (Listo para conectar SUPABASE_URL en .env)'}
+          </span>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">
+            PINs activos de prueba: <strong>Roberto (1024)</strong> · <strong>Miguel (2048)</strong>
+          </span>
+        </div>
+        <button id="btn-admin-logout" type="button" class="p-btn p-btn-secondary" style="padding: 0.45rem 0.9rem; font-size: 0.82rem;">
+          Cerrar Sesión
+        </button>
+      </div>
+
+      <!-- KPIs Summary -->
+      <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+        <div class="p-card kpi-card">
+          <span class="kpi-label">Citas / Levantamientos</span>
+          <strong class="kpi-value" style="color: var(--info);">{citasPendientes}</strong>
+          <span class="kpi-foot">Pendientes de visita en sitio</span>
+        </div>
+        <div class="p-card kpi-card">
+          <span class="kpi-label">Presupuestos por Cerrar</span>
+          <strong class="kpi-value" style="color: var(--warning);">{presupuestosPorFirmar}</strong>
+          <span class="kpi-foot">Esperando firma del cliente</span>
+        </div>
+        <div class="p-card kpi-card">
+          <span class="kpi-label">Obras en Ejecución</span>
+          <strong class="kpi-value" style="color: var(--purple);">{obrasActivas}</strong>
+          <span class="kpi-foot">Con acuerdo firmado</span>
+        </div>
+        <div class="p-card kpi-card">
+          <span class="kpi-label">Volumen Cerrado / En Obra</span>
+          <strong class="kpi-value" style="color: var(--success);">{formatCurrency(totalCerrado)}</strong>
+          <span class="kpi-foot">Mano de obra + materiales</span>
+        </div>
+      </div>
+
+      <!-- Main Action Forms: Create Ticket & Manage Maestros -->
+      <div class="p-grid-2" style="margin-bottom: 2rem;">
+        <!-- Create New Ticket Form -->
+        <section class="p-card">
+          <div class="p-card-header">
+            <div>
+              <h2 style="font-size: 1.2rem; font-family: var(--font-heading);">
+                ➕ 1. Crear Nuevo Ticket (Lead de WhatsApp)
+              </h2>
+              <p style="font-size: 0.84rem; color: var(--text-muted);">
+                Registra lo que solicitó el cliente y genera su código de seguimiento único.
+              </p>
+            </div>
+          </div>
+
+          <form id="create-ticket-form" style="display: flex; flex-direction: column; gap: 0.85rem;">
+            <div class="p-grid-2">
+              <div>
+                <label class="p-label">Nombre del Cliente *</label>
+                <input name="clienteNombre" class="p-input" placeholder="Ej. Sra. Laura Gómez" required />
+              </div>
+              <div>
+                <label class="p-label">WhatsApp del Cliente (10 dígitos) *</label>
+                <input name="clienteTelefono" class="p-input" placeholder="Ej. 9981234567" required />
+              </div>
+            </div>
+
+            <div class="p-grid-2">
+              <div>
+                <label class="p-label">Zona / Colonia en Cancún *</label>
+                <input name="zona" class="p-input" placeholder="Ej. Residencial Cumbres / Prados Norte" required />
+              </div>
+              <div>
+                <label class="p-label">Servicio Principal *</label>
+                <select name="servicioSolicitado" class="p-select" required>
+                  <option value="Construcción de Bardas">Construcción de Bardas</option>
+                  <option value="Pisos y Azulejos">Pisos y Azulejos</option>
+                  <option value="Remodelación y Acabados">Remodelación y Acabados</option>
+                  <option value="Reparaciones Estructurales">Reparaciones Estructurales</option>
+                  <option value="Albañilería General">Albañilería General</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="p-label">Dirección / Referencia para la Visita</label>
+              <input
+                name="direccionReferencia"
+                class="p-input"
+                placeholder="Ej. Sm 310 Calle Monte Líbano Lote 12, frente a parque"
+              />
+            </div>
+
+            <div>
+              <label class="p-label">Requerimientos tomados por WhatsApp *</label>
+              <textarea
+                name="requerimientosCliente"
+                class="p-textarea"
+                rows="3"
+                placeholder="Describe qué necesita hacer el cliente, medidas aproximadas o problema a resolver..."
+                required
+              ></textarea>
+            </div>
+
+            <div
+              style="background: var(--bg-card-elevated); padding: 0.9rem; border-radius: 10px; border: 1px solid var(--border);"
+            >
+              <p style="font-size: 0.82rem; font-weight: 700; color: var(--primary); margin-bottom: 0.6rem;">
+                Opcional: Asignar Maestro Albañil y Cita de una vez
+              </p>
+              <div class="p-grid-2">
+                <div>
+                  <label class="p-label">Maestro Albañil Asignado</label>
+                  <select name="maestroId" class="p-select">
+                    <option value="">-- Asignar más tarde --</option>
+                    {maestros.map((m) => (
+                      <option value={m.id}>
+                        {m.nombre} ({m.especialidad})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label class="p-label">Fecha y Hora de Cita</label>
+                  <input
+                    name="citaFecha"
+                    type="text"
+                    class="p-input"
+                    placeholder="Ej. Mañana Jueves 10:00 AM"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="p-btn p-btn-primary" style="margin-top: 0.25rem;">
+              Generar Ticket de Seguimiento
+            </button>
+          </form>
+        </section>
+
+        <!-- Maestros Albaniles Directory -->
+        <section class="p-card">
+          <div class="p-card-header">
+            <div>
+              <h2 style="font-size: 1.2rem; font-family: var(--font-heading);">
+                👷‍♂️ 2. Tus Maestros Albañiles ({maestros.length})
+              </h2>
+              <p style="font-size: 0.84rem; color: var(--text-muted);">
+                Cada maestro entra en <code>/maestro</code> con su PIN de 4 dígitos para subir presupuestos y fotos.
+              </p>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+            {maestros.map((m) => {
+              const asignados = tickets.filter((t) => t.maestroId === m.id);
+              const cerrados = asignados.filter((t) =>
+                ['presupuesto_firmado', 'en_obra', 'finalizado'].includes(t.estado)
+              );
+              return (
+                <div
+                  style="background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem; display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;"
+                >
+                  <div>
+                    <strong style="font-size: 0.98rem; display: block;">{m.nombre}</strong>
+                    <span style="font-size: 0.82rem; color: var(--text-muted); display: block;">
+                      {m.especialidad} · Tel: {m.telefono}
+                    </span>
+                    <span style="font-size: 0.78rem; color: var(--primary); font-weight: 600;">
+                      PIN de acceso: <code>{m.pin}</code> · Tickets asignados: {asignados.length} ({cerrados.length}{' '}
+                      cerrados)
+                    </span>
+                  </div>
+                  <a
+                    href={`https://wa.me/${cleanPhone(m.telefono)}?text=${encodeURIComponent(
+                      `Hola ${m.nombre}, te comparto el enlace de tu Portal de Maestro para revisar tus citas y subir evidencias con tu PIN (${m.pin}): ${origin}/maestro`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-btn p-btn-whatsapp"
+                    style="padding: 0.45rem 0.8rem; font-size: 0.8rem;"
+                  >
+                    WhatsApp Maestro
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+
+          <details style="border-top: 1px solid var(--border); padding-top: 0.9rem;">
+            <summary style="cursor: pointer; font-weight: 700; font-size: 0.9rem; color: var(--primary);">
+              + Dar de alta otro Maestro Albañil
+            </summary>
+            <form
+              id="create-maestro-form"
+              style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.85rem;"
+            >
+              <div class="p-grid-2">
+                <div>
+                  <label class="p-label">Nombre Completo *</label>
+                  <input name="nombre" class="p-input" placeholder="Ej. Maestro José Chan" required />
+                </div>
+                <div>
+                  <label class="p-label">Teléfono WhatsApp *</label>
+                  <input name="telefono" class="p-input" placeholder="Ej. 9983334455" required />
+                </div>
+              </div>
+              <div class="p-grid-2">
+                <div>
+                  <label class="p-label">Especialidad *</label>
+                  <input name="especialidad" class="p-input" placeholder="Ej. Remodelaciones y Plomería" required />
+                </div>
+                <div>
+                  <label class="p-label">PIN de Acceso (4 dígitos) *</label>
+                  <input
+                    name="pin"
+                    class="p-input"
+                    placeholder="Ej. 3090"
+                    minlength="4"
+                    maxlength="8"
+                    required
+                  />
+                </div>
+              </div>
+              <button type="submit" class="p-btn p-btn-secondary">Guardar Maestro Albañil</button>
+            </form>
+          </details>
+        </section>
+      </div>
+
+      <!-- Tickets List Section -->
+      <section>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h2 style="font-family: var(--font-heading); font-size: 1.45rem;">
+            📋 3. Tablero de Tickets y Auditoría de Obras ({tickets.length})
+          </h2>
+        </div>
+
+        {tickets.map((ticket) => {
+          const meta = getStatusMeta(ticket.estado);
+          const ticketUrl = `${origin}/ticket/${ticket.codigo}`;
+          const totalPresupuesto =
+            (ticket.presupuestoManoObra ?? 0) + (ticket.presupuestoMaterialesEstimado ?? 0);
+
+          const whatsappClienteMsg = `Hola ${ticket.clienteNombre}, le saludamos de *El Buen Maestro Cancún* 👷‍♂️.\n\nSu solicitud quedó registrada con el ticket *${ticket.codigo}*.\n\nDesde este enlace oficial puede ver el maestro asignado a su cita, revisar y firmar su presupuesto digitalmente, y seguir las fotos de avance de su obra en tiempo real:\n👉 ${ticketUrl}`;
+
+          const whatsappMaestroMsg = ticket.maestro
+            ? `Hola ${ticket.maestro.nombre}, tienes asignado el ticket *${ticket.codigo}*:\n📍 Zona: ${ticket.zona} (${ticket.direccionReferencia || 'Ver detalle'})\n👤 Cliente: ${ticket.clienteNombre}\n🗓️ Cita: ${ticket.citaFecha || 'Por definir'}\n🛠️ Trabajo: ${ticket.requerimientosCliente}\n\nEntra a tu portal con tu PIN (${ticket.maestro.pin}) para subir la foto de la visita y el presupuesto:\n👉 ${origin}/maestro`
+            : '';
+
+          return (
+            <article class="p-card ticket-card" style={`border-left: 5px solid ${meta.badgeColor};`}>
+              <div class="p-card-header">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+                    <span
+                      style="font-family: monospace; font-size: 1.08rem; font-weight: 800; color: var(--primary); background: rgba(245, 158, 11, 0.12); padding: 0.2rem 0.6rem; border-radius: 6px;"
+                    >
+                      {ticket.codigo}
+                    </span>
+                    <span
+                      class="p-badge"
+                      style={`background: ${meta.badgeColor}22; color: ${meta.badgeColor}; border: 1px solid ${meta.badgeColor}66;`}
+                    >
+                      {meta.label}
+                    </span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">
+                      📍 {ticket.zona} · {ticket.servicioSolicitado}
+                    </span>
+                  </div>
+                  <h3 style="font-size: 1.18rem; margin-top: 0.5rem;">
+                    Cliente: {ticket.clienteNombre}{' '}
+                    <span style="font-weight: 400; color: var(--text-muted); font-size: 0.92rem;">
+                      ({ticket.clienteTelefono})
+                    </span>
+                  </h3>
+                  {ticket.direccionReferencia && (
+                    <p style="font-size: 0.85rem; color: var(--text-muted);">
+                      Dirección/Ref: {ticket.direccionReferencia}
+                    </p>
+                  )}
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                  <a href={`/ticket/${ticket.codigo}`} target="_blank" class="p-btn p-btn-secondary" style="font-size: 0.82rem; padding: 0.5rem 0.85rem;">
+                    👁️ Ver Vista Cliente
+                  </a>
+                  <a
+                    href={`https://wa.me/${cleanPhone(ticket.clienteTelefono)}?text=${encodeURIComponent(whatsappClienteMsg)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="p-btn p-btn-whatsapp"
+                    style="font-size: 0.82rem; padding: 0.5rem 0.85rem;"
+                  >
+                    📲 Mandar Ticket al Cliente
+                  </a>
+                  {ticket.maestro && (
+                    <a
+                      href={`https://wa.me/${cleanPhone(ticket.maestro.telefono)}?text=${encodeURIComponent(whatsappMaestroMsg)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="p-btn p-btn-primary"
+                      style="font-size: 0.82rem; padding: 0.5rem 0.85rem;"
+                    >
+                      👷 Notificar al Maestro
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              <!-- 6-Step State Machine Bar -->
+              <div class="stepper-row">
+                {TICKET_STATUS_STEPS.map((s) => {
+                  const isCurrent = s.status === ticket.estado;
+                  const isDone = s.stepNumber < meta.stepNumber;
+                  return (
+                    <div class:list={['step-pill', { done: isDone, current: isCurrent }]}>
+                      {isDone ? '✓ ' : ''}
+                      {s.shortLabel}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div class="p-grid-2" style="margin-top: 1rem;">
+                <!-- Left Column: Requerimientos + Maestro/Cita Assignment -->
+                <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                  <div style="background: var(--bg-card-elevated); padding: 0.9rem; border-radius: 10px;">
+                    <span class="p-label">Requerimiento del Cliente (WhatsApp):</span>
+                    <p style="font-size: 0.92rem;">{ticket.requerimientosCliente}</p>
+                  </div>
+
+                  <div style="background: var(--bg-card-elevated); padding: 0.9rem; border-radius: 10px;">
+                    <span class="p-label">Maestro Asignado y Cita de Levantamiento:</span>
+                    {ticket.maestro ? (
+                      <p style="font-size: 0.92rem; margin-bottom: 0.5rem;">
+                        <strong>👷 {ticket.maestro.nombre}</strong> · 📅 Cita:{' '}
+                        <strong>{ticket.citaFecha || 'Sin horario definido'}</strong>
+                      </p>
+                    ) : (
+                      <p style="font-size: 0.9rem; color: var(--warning); margin-bottom: 0.5rem;">
+                        ⚠️ Sin maestro asignado todavía.
+                      </p>
+                    )}
+
+                    <details>
+                      <summary style="cursor: pointer; font-size: 0.82rem; color: var(--primary); font-weight: 600;">
+                        {ticket.maestro ? 'Cambiar Maestro o Reprogramar Cita' : 'Asignar Maestro y Fecha de Cita'}
+                      </summary>
+                      <form
+                        class="assign-cita-form"
+                        data-ticket-id={ticket.id}
+                        style="display: grid; gap: 0.6rem; margin-top: 0.65rem;"
+                      >
+                        <select name="maestroId" class="p-select" required>
+                          <option value="">Seleccionar Maestro...</option>
+                          {maestros.map((m) => (
+                            <option value={m.id} selected={ticket.maestroId === m.id}>
+                              {m.nombre} (PIN {m.pin})
+                            </option>
+                          ))}
+                        </select>
+                        <input
+                          name="citaFecha"
+                          class="p-input"
+                          placeholder="Fecha y hora (ej. Viernes 11:00 AM)"
+                          value={ticket.citaFecha || ''}
+                          required
+                        />
+                        <input
+                          name="citaNotas"
+                          class="p-input"
+                          placeholder="Instrucciones para el maestro..."
+                          value={ticket.citaNotas || ''}
+                        />
+                        <button type="submit" class="p-btn p-btn-primary" style="padding: 0.5rem;">
+                          Guardar Asignación de Cita
+                        </button>
+                      </form>
+                    </details>
+                  </div>
+                </div>
+
+                <!-- Right Column: Presupuesto & Signatures Audit -->
+                <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                  <div style="background: var(--bg-card-elevated); padding: 0.9rem; border-radius: 10px;">
+                    <span class="p-label">Auditoría de Presupuesto y Firmas Digitales:</span>
+                    {ticket.presupuestoManoObra !== null ? (
+                      <div>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">{ticket.presupuestoDetalle}</p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.88rem; margin-bottom: 0.75rem;">
+                          <span>
+                            Mano de Obra: <strong>{formatCurrency(ticket.presupuestoManoObra)}</strong>
+                          </span>
+                          <span>
+                            Materiales Est.: <strong>{formatCurrency(ticket.presupuestoMaterialesEstimado)}</strong>
+                          </span>
+                          <span style="color: var(--primary);">
+                            Total: <strong>{formatCurrency(totalPresupuesto)}</strong> ({ticket.presupuestoDiasEstimados}{' '}
+                            días)
+                          </span>
+                        </div>
+
+                        <div class="p-grid-2">
+                          <div style="background: #0b0d10; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">
+                              Firma del Maestro Albañil:
+                            </span>
+                            {ticket.firmaMaestroData ? (
+                              <div>
+                                <img
+                                  src={ticket.firmaMaestroData}
+                                  alt="Firma Maestro"
+                                  style="max-height: 54px; background: #fff; border-radius: 4px; margin-top: 0.35rem; width: 100%; object-fit: contain;"
+                                />
+                                <span style="font-size: 0.75rem; color: var(--success); display: block; margin-top: 0.25rem;">
+                                  ✓ Firmado por {ticket.firmaMaestroNombre}
+                                </span>
+                              </div>
+                            ) : (
+                              <span style="font-size: 0.8rem; color: var(--warning);">⏳ Pendiente</span>
+                            )}
+                          </div>
+
+                          <div style="background: #0b0d10; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border);">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">
+                              Firma de Conformidad del Cliente:
+                            </span>
+                            {ticket.firmaClienteData ? (
+                              <div>
+                                <img
+                                  src={ticket.firmaClienteData}
+                                  alt="Firma Cliente"
+                                  style="max-height: 54px; background: #fff; border-radius: 4px; margin-top: 0.35rem; width: 100%; object-fit: contain;"
+                                />
+                                <span style="font-size: 0.75rem; color: var(--success); display: block; margin-top: 0.25rem;">
+                                  ✓ Firmado por {ticket.firmaClienteNombre}
+                                </span>
+                              </div>
+                            ) : (
+                              <span style="font-size: 0.8rem; color: var(--warning);">
+                                ⏳ Esperando firma en link del cliente
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <p style="font-size: 0.88rem; color: var(--text-muted);">
+                        El maestro aún no ha subido el levantamiento ni el presupuesto de este ticket.
+                      </p>
+                    )}
+                  </div>
+
+                  <!-- Progress & Evidence Summary -->
+                  <div style="background: var(--bg-card-elevated); padding: 0.9rem; border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                      <strong>Avance Físico de Obra: {ticket.porcentajeAvance}%</strong>
+                      <span>
+                        📸 {ticket.evidencias.length} fotos · 🧱 {ticket.materiales.length} materiales
+                      </span>
+                    </div>
+                    <div style="height: 8px; background: #0b0d10; border-radius: 999px; overflow: hidden;">
+                      <div
+                        style={`width: ${ticket.porcentajeAvance}%; height: 100%; background: var(--success);`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+    </div>
+  )}
+</PlatformLayout>
+
+<style>
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1rem;
+  }
+
+  .kpi-card {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .kpi-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .kpi-value {
+    font-family: var(--font-heading);
+    font-size: 1.85rem;
+    line-height: 1.15;
+  }
+
+  .kpi-foot {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .stepper-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.4rem;
+  }
+
+  .step-pill {
+    font-size: 0.75rem;
+    padding: 0.38rem 0.55rem;
+    border-radius: 6px;
+    background: #0b0d10;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .step-pill.done {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+
+  .step-pill.current {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--primary);
+    border-color: var(--primary);
+    font-weight: 800;
+  }
+</style>
+
+<script>
+  async function postAction(payload: Record<string, unknown>) {
+    const res = await fetch('/api/tickets/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  }
+
+  const loginForm = document.getElementById('admin-login-form') as HTMLFormElement | null;
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(loginForm);
+      const result = await postAction({
+        action: 'admin_login',
+        password: formData.get('password'),
+      });
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        const errEl = document.getElementById('login-error');
+        if (errEl) {
+          errEl.textContent = result.error || 'Error de autenticación';
+          errEl.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  const logoutBtn = document.getElementById('btn-admin-logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      await postAction({ action: 'admin_logout' });
+      window.location.reload();
+    });
+  }
+
+  const createTicketForm = document.getElementById('create-ticket-form') as HTMLFormElement | null;
+  if (createTicketForm) {
+    createTicketForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(createTicketForm);
+      const result = await postAction({
+        action: 'create_ticket',
+        clienteNombre: fd.get('clienteNombre'),
+        clienteTelefono: fd.get('clienteTelefono'),
+        zona: fd.get('zona'),
+        direccionReferencia: fd.get('direccionReferencia'),
+        servicioSolicitado: fd.get('servicioSolicitado'),
+        requerimientosCliente: fd.get('requerimientosCliente'),
+        maestroId: fd.get('maestroId') || null,
+        citaFecha: fd.get('citaFecha') || null,
+      });
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        alert(result.error || 'No se pudo crear el ticket.');
+      }
+    });
+  }
+
+  const createMaestroForm = document.getElementById('create-maestro-form') as HTMLFormElement | null;
+  if (createMaestroForm) {
+    createMaestroForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(createMaestroForm);
+      const result = await postAction({
+        action: 'create_maestro',
+        nombre: fd.get('nombre'),
+        telefono: fd.get('telefono'),
+        especialidad: fd.get('especialidad'),
+        pin: fd.get('pin'),
+      });
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        alert(result.error || 'No se pudo registrar el maestro.');
+      }
+    });
+  }
+
+  document.querySelectorAll('.assign-cita-form').forEach((formEl) => {
+    const form = formEl as HTMLFormElement;
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const ticketId = form.dataset.ticketId;
+      const result = await postAction({
+        action: 'assign_cita',
+        ticketId,
+        maestroId: fd.get('maestroId'),
+        citaFecha: fd.get('citaFecha'),
+        citaNotas: fd.get('citaNotas'),
+      });
+      if (result.ok) {
+        window.location.reload();
+      } else {
+        alert(result.error || 'Error al asignar cita.');
+      }
+    });
+  });
+</script>

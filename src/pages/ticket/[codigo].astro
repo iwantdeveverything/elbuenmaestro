@@ -1,0 +1,523 @@
+---
+import PlatformLayout from '../../layouts/PlatformLayout.astro';
+import { getTicketRepository } from '../../modules/tickets/infrastructure/repositoryFactory.ts';
+import { getStatusMeta, TICKET_STATUS_STEPS } from '../../modules/tickets/domain/ticketStateMachine.ts';
+import { getWhatsAppUrl } from '../../config/site.ts';
+
+export const prerender = false;
+
+const { codigo = '' } = Astro.params;
+const repo = getTicketRepository();
+const ticket = await repo.getTicketByCodigo(codigo);
+
+const meta = ticket ? getStatusMeta(ticket.estado) : null;
+const totalPresupuesto = ticket
+  ? (ticket.presupuestoManoObra ?? 0) + (ticket.presupuestoMaterialesEstimado ?? 0)
+  : 0;
+
+function formatCurrency(val: number | null | undefined): string {
+  if (val === null || val === undefined) return '$0 MXN';
+  return new Intl.NumberFormat('es-MX', {
+    style: 'currency',
+    currency: 'MXN',
+    maximumFractionDigits: 0,
+  }).format(val);
+}
+
+function formatDate(iso: string | null | undefined): string {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('es-MX', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return iso;
+  }
+}
+---
+
+<PlatformLayout
+  title={ticket ? `Seguimiento de Obra · Ticket ${ticket.codigo}` : 'Ticket de Obra No Encontrado'}
+  subtitle={
+    ticket
+      ? `Cliente: ${ticket.clienteNombre} · Zona: ${ticket.zona} · Servicio: ${ticket.servicioSolicitado}`
+      : 'Verifique el código de su ticket o solicite el enlace actualizado por WhatsApp.'
+  }
+  roleBadge="Seguimiento en Línea para Clientes"
+  activeNav="cliente"
+>
+  {!ticket || !meta ? (
+    <div class="p-card" style="text-align: center; padding: 3rem 1.5rem; max-width: 560px; margin: 2rem auto;">
+      <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 0.5rem;">
+        No encontramos el ticket <code>{codigo}</code>
+      </h2>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        Verifique que el enlace esté completo o contáctenos por WhatsApp para reenviarle su acceso.
+      </p>
+      <a href={getWhatsAppUrl(`Hola, busco seguimiento de mi ticket ${codigo}`)} class="p-btn p-btn-whatsapp">
+        Consultar por WhatsApp
+      </a>
+    </div>
+  ) : (
+    <div>
+      <!-- Status & Progress Hero Card -->
+      <section class="p-card" style={`border-left: 5px solid ${meta.badgeColor};`}>
+        <div class="p-card-header">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.65rem; flex-wrap: wrap;">
+              <span
+                style="font-family: monospace; font-size: 1.15rem; font-weight: 800; color: var(--primary); background: rgba(245, 158, 11, 0.14); padding: 0.25rem 0.7rem; border-radius: 6px;"
+              >
+                {ticket.codigo}
+              </span>
+              <span
+                class="p-badge"
+                style={`background: ${meta.badgeColor}22; color: ${meta.badgeColor}; border: 1px solid ${meta.badgeColor}66; font-size: 0.85rem;`}
+              >
+                {meta.label}
+              </span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; margin-top: 0.45rem;">
+              {meta.description}
+            </p>
+          </div>
+
+          <a
+            href={getWhatsAppUrl(
+              `Hola El Buen Maestro, escribo respecto a mi ticket ${ticket.codigo} (${ticket.servicioSolicitado}).`
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-btn p-btn-whatsapp"
+          >
+            💬 Soporte por WhatsApp
+          </a>
+        </div>
+
+        <!-- Stepper -->
+        <div class="client-stepper">
+          {TICKET_STATUS_STEPS.map((s) => {
+            const isCurrent = s.status === ticket.estado;
+            const isDone = s.stepNumber < meta.stepNumber;
+            return (
+              <div class:list={['c-step', { done: isDone, current: isCurrent }]}>
+                <span class="c-step-num">{isDone ? '✓' : s.stepNumber}</span>
+                <span class="c-step-text">{s.shortLabel.replace(/^\d+\.\s*/, '')}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        <!-- Progress bar when work is underway -->
+        <div style="margin-top: 1.1rem;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.86rem; margin-bottom: 0.35rem;">
+            <span>Avance general de su proyecto</span>
+            <strong style="color: var(--success);">{ticket.porcentajeAvance}% completado</strong>
+          </div>
+          <div style="height: 10px; background: #0b0d10; border-radius: 999px; overflow: hidden;">
+            <div style={`width: ${ticket.porcentajeAvance}%; height: 100%; background: var(--success);`} />
+          </div>
+        </div>
+      </section>
+
+      <!-- Info Grid: Requerimientos + Maestro Asignado -->
+      <div class="p-grid-2">
+        <section class="p-card">
+          <h2 style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 0.75rem;">
+            📋 Detalles de su Solicitud
+          </h2>
+          <p style="font-size: 0.94rem; margin-bottom: 0.75rem;">{ticket.requerimientosCliente}</p>
+          <div style="font-size: 0.85rem; color: var(--text-muted); display: grid; gap: 0.3rem;">
+            <span>📍 <strong>Ubicación:</strong> {ticket.zona} {ticket.direccionReferencia ? `— ${ticket.direccionReferencia}` : ''}</span>
+            <span>🛠️ <strong>Servicio:</strong> {ticket.servicioSolicitado}</span>
+          </div>
+        </section>
+
+        <section class="p-card">
+          <h2 style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 0.75rem;">
+            👷‍♂️ Maestro Albañil y Cita de Visita
+          </h2>
+          {ticket.maestro ? (
+            <div style="display: grid; gap: 0.45rem;">
+              <p style="font-size: 1.02rem;">
+                Maestro Asignado: <strong style="color: var(--primary);">{ticket.maestro.nombre}</strong>
+              </p>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">
+                Especialidad: {ticket.maestro.especialidad}
+              </p>
+              <p style="font-size: 0.92rem; margin-top: 0.25rem;">
+                🗓️ <strong>Fecha/Hora de Cita:</strong>{' '}
+                <span style="color: var(--text-main);">{ticket.citaFecha || 'Por confirmar horario'}</span>
+              </p>
+            </div>
+          ) : (
+            <p style="color: var(--text-muted); font-size: 0.92rem;">
+              Estamos asignando al maestro especialista ideal para su zona. En breve verá aquí su nombre y horario de visita.
+            </p>
+          )}
+        </section>
+      </div>
+
+      <!-- Presupuesto & Firma Digital Section -->
+      {ticket.presupuestoManoObra !== null && (
+        <section class="p-card" style="border: 1px solid rgba(245, 158, 11, 0.4);">
+          <div class="p-card-header">
+            <div>
+              <h2 style="font-family: var(--font-heading); font-size: 1.3rem; color: var(--primary);">
+                📝 Presupuesto Oficial y Acuerdo de Conformidad
+              </h2>
+              <p style="font-size: 0.88rem; color: var(--text-muted);">
+                Levantado en sitio con evidencia fotográfica. Para iniciar los trabajos, ambas partes firman de conformidad.
+              </p>
+            </div>
+          </div>
+
+          <div
+            style="background: var(--bg-card-elevated); padding: 1rem; border-radius: 10px; margin-bottom: 1.15rem;"
+          >
+            <span class="p-label">Alcance de los trabajos a realizar:</span>
+            <p style="font-size: 0.96rem; margin-bottom: 1rem;">{ticket.presupuestoDetalle}</p>
+
+            <div class="p-grid-3" style="border-top: 1px solid var(--border); padding-top: 0.85rem;">
+              <div>
+                <span class="p-label">Mano de Obra</span>
+                <strong style="font-size: 1.2rem;">{formatCurrency(ticket.presupuestoManoObra)}</strong>
+              </div>
+              <div>
+                <span class="p-label">Materiales Estimados</span>
+                <strong style="font-size: 1.2rem;">{formatCurrency(ticket.presupuestoMaterialesEstimado)}</strong>
+              </div>
+              <div>
+                <span class="p-label">Total Estimado ({ticket.presupuestoDiasEstimados} días)</span>
+                <strong style="font-size: 1.3rem; color: var(--primary);">
+                  {formatCurrency(totalPresupuesto)}
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signatures Row -->
+          <div class="p-grid-2">
+            <!-- Firma del Maestro -->
+            <div style="background: #0b0d10; border: 1px solid var(--border); border-radius: 10px; padding: 1rem;">
+              <span class="p-label">1. Firma de Compromiso del Maestro Albañil</span>
+              {ticket.firmaMaestroData ? (
+                <div>
+                  <img
+                    src={ticket.firmaMaestroData}
+                    alt="Firma del Maestro Albañil"
+                    style="width: 100%; height: 110px; object-fit: contain; background: #ffffff; border-radius: 8px; margin: 0.4rem 0;"
+                  />
+                  <p style="font-size: 0.82rem; color: var(--success);">
+                    ✓ Firmado por <strong>{ticket.firmaMaestroNombre}</strong> ({formatDate(ticket.firmaMaestroFecha)})
+                  </p>
+                </div>
+              ) : (
+                <p style="font-size: 0.88rem; color: var(--text-muted);">Pendiente firma del maestro.</p>
+              )}
+            </div>
+
+            <!-- Firma del Cliente -->
+            <div style="background: #0b0d10; border: 1px solid var(--border); border-radius: 10px; padding: 1rem;">
+              <span class="p-label">2. Firma de Conformidad del Cliente</span>
+              {ticket.firmaClienteData ? (
+                <div>
+                  <img
+                    src={ticket.firmaClienteData}
+                    alt="Firma del Cliente"
+                    style="width: 100%; height: 110px; object-fit: contain; background: #ffffff; border-radius: 8px; margin: 0.4rem 0;"
+                  />
+                  <p style="font-size: 0.82rem; color: var(--success);">
+                    ✓ Aprobado y firmado por <strong>{ticket.firmaClienteNombre}</strong> ({formatDate(ticket.firmaClienteFecha)})
+                  </p>
+                </div>
+              ) : (
+                <form id="cliente-sign-form" data-codigo={ticket.codigo} style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <div>
+                    <input
+                      name="firmaClienteNombre"
+                      class="p-input"
+                      value={ticket.clienteNombre}
+                      placeholder="Su nombre completo"
+                      required
+                    />
+                  </div>
+                  <div class="signature-pad-wrapper">
+                    <canvas id="cliente-signature-canvas" class="signature-canvas" width="500" height="150"></canvas>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.35rem;">
+                      <span style="font-size: 0.75rem; color: #475569;">Dibuje su firma aquí con el dedo o cursor</span>
+                      <button
+                        type="button"
+                        id="clear-cliente-signature"
+                        style="background: #e2e8f0; color: #0f172a; border: none; border-radius: 5px; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 700; cursor: pointer;"
+                      >
+                        Limpiar
+                      </button>
+                    </div>
+                  </div>
+                  <button type="submit" class="p-btn p-btn-primary" style="width: 100%;">
+                    ✍️ Firmar de Conformidad y Autorizar Inicio de Obra
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <!-- Evidence Gallery & Materials -->
+      <div class="p-grid-2">
+        <!-- Galería de Evidencias Fotográficas -->
+        <section class="p-card">
+          <h2 style="font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 0.85rem;">
+            📸 Evidencias Fotográficas de su Obra ({ticket.evidencias.length})
+          </h2>
+
+          {ticket.evidencias.length === 0 ? (
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+              Las fotos de la visita inicial y los avances diarios aparecerán aquí en cuanto el maestro las capture en sitio.
+            </p>
+          ) : (
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+              {ticket.evidencias.map((ev) => (
+                <div
+                  style="background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 10px; overflow: hidden;"
+                >
+                  <img
+                    src={ev.fotoUrl}
+                    alt={ev.descripcion}
+                    style="width: 100%; max-height: 260px; object-fit: cover; display: block; background: #0b0d10;"
+                  />
+                  <div style="padding: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                      <span
+                        class="p-badge"
+                        style="background: rgba(245, 158, 11, 0.15); color: var(--primary); font-size: 0.72rem;"
+                      >
+                        {ev.etapa === 'visita_relevamiento'
+                          ? '📍 Levantamiento en Cita'
+                          : ev.etapa === 'cierre_obra'
+                          ? '✅ Entrega Final (100%)'
+                          : `🔨 Avance de Obra (${ev.porcentajeAvance ?? 0}%)`}
+                      </span>
+                      <span style="font-size: 0.75rem; color: var(--text-muted);">
+                        {formatDate(ev.createdAt)}
+                      </span>
+                    </div>
+                    <p style="font-size: 0.92rem;">{ev.descripcion}</p>
+                    <span style="font-size: 0.78rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">
+                      Reportado por: {ev.autorNombre}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <!-- Control de Materiales a Comprar / Comprados -->
+        <section class="p-card">
+          <h2 style="font-family: var(--font-heading); font-size: 1.2rem; margin-bottom: 0.85rem;">
+            🧱 Control de Materiales y Compras ({ticket.materiales.length})
+          </h2>
+
+          {ticket.materiales.length === 0 ? (
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+              Aún no se han registrado listas de materiales o comprobantes de compra para este proyecto.
+            </p>
+          ) : (
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+              {ticket.materiales.map((mat) => (
+                <div
+                  style="background: var(--bg-card-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem;"
+                >
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+                    <div>
+                      <strong style="font-size: 0.96rem; display: block;">{mat.concepto}</strong>
+                      <span style="font-size: 0.84rem; color: var(--text-muted);">
+                        Cantidad: <strong>{mat.cantidad}</strong> · Costo:{' '}
+                        <strong>{formatCurrency(mat.costoReal ?? mat.costoEstimado)}</strong>
+                      </span>
+                    </div>
+                    <span
+                      class="p-badge"
+                      style={
+                        mat.estado === 'pendiente_compra'
+                          ? 'background: rgba(245, 158, 11, 0.15); color: #f59e0b;'
+                          : 'background: rgba(16, 185, 129, 0.15); color: #10b981;'
+                      }
+                    >
+                      {mat.estado === 'pendiente_compra'
+                        ? '⏳ Por Comprar'
+                        : mat.estado === 'comprado'
+                        ? '✓ Comprado'
+                        : '✓ En Obra'}
+                    </span>
+                  </div>
+                  {mat.notas && (
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+                      Nota: {mat.notas}
+                    </p>
+                  )}
+                  {mat.comprobanteUrl && (
+                    <details style="margin-top: 0.5rem;">
+                      <summary style="cursor: pointer; font-size: 0.8rem; color: var(--primary); font-weight: 600;">
+                        Ver Foto de Nota / Material
+                      </summary>
+                      <img
+                        src={mat.comprobanteUrl}
+                        alt={mat.concepto}
+                        style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 0.45rem;"
+                      />
+                    </details>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  )}
+</PlatformLayout>
+
+<style>
+  .client-stepper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+    gap: 0.45rem;
+  }
+
+  .c-step {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.45rem 0.65rem;
+    background: #0b0d10;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+
+  .c-step-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    background: var(--bg-card-elevated);
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+
+  .c-step.done {
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #10b981;
+  }
+
+  .c-step.done .c-step-num {
+    background: #10b981;
+    color: #052e16;
+  }
+
+  .c-step.current {
+    border-color: var(--primary);
+    background: rgba(245, 158, 11, 0.14);
+    color: var(--text-main);
+    font-weight: 700;
+  }
+
+  .c-step.current .c-step-num {
+    background: var(--primary);
+    color: #0b0d10;
+  }
+</style>
+
+<script>
+  const signForm = document.getElementById('cliente-sign-form') as HTMLFormElement | null;
+  const canvas = document.getElementById('cliente-signature-canvas') as HTMLCanvasElement | null;
+  const clearBtn = document.getElementById('clear-cliente-signature');
+
+  if (canvas && signForm) {
+    const ctx = canvas.getContext('2d');
+    let hasSigned = false;
+    let drawing = false;
+
+    if (ctx) {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = '#1d4ed8';
+      ctx.lineWidth = 3.2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      const getPos = (e: PointerEvent) => {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: (e.clientX - rect.left) * (canvas.width / rect.width),
+          y: (e.clientY - rect.top) * (canvas.height / rect.height),
+        };
+      };
+
+      canvas.addEventListener('pointerdown', (e) => {
+        drawing = true;
+        hasSigned = true;
+        const pos = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (!drawing) return;
+        const pos = getPos(e);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+      });
+
+      const stop = () => {
+        drawing = false;
+      };
+      canvas.addEventListener('pointerup', stop);
+      canvas.addEventListener('pointerleave', stop);
+
+      clearBtn?.addEventListener('click', () => {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        hasSigned = false;
+      });
+    }
+
+    signForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!hasSigned) {
+        alert('Por favor dibuje su firma en el recuadro blanco para confirmar el presupuesto.');
+        return;
+      }
+
+      const fd = new FormData(signForm);
+      const res = await fetch('/api/tickets/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'sign_cliente',
+          codigo: signForm.dataset.codigo,
+          firmaClienteNombre: fd.get('firmaClienteNombre'),
+          firmaClienteData: canvas.toDataURL('image/png'),
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'No se pudo guardar su firma.');
+      }
+    });
+  }
+</script>
