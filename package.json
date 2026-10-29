@@ -10,7 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check",
-    "test": "node --experimental-strip-types --test src/utils/getPageUrl.test.ts src/utils/siloLinking.test.ts src/modules/tickets/domain/ticketStateMachine.test.ts src/modules/tickets/infrastructure/repositoryFactory.test.ts",
+    "test": "node --experimental-strip-types --test src/utils/getPageUrl.test.ts src/utils/siloLinking.test.ts src/modules/tickets/domain/ticketStateMachine.test.ts src/modules/tickets/infrastructure/repositoryFactory.test.ts src/modules/tickets/recruitment.test.ts",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:status": "supabase status",

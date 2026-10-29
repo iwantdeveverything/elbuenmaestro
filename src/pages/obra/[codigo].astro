@@ -1,0 +1,588 @@
+---
+import { getTicketRepository } from '../../modules/tickets/infrastructure/repositoryFactory.ts';
+import { getWhatsAppUrl, PHONE_DISPLAY } from '../../config/site.ts';
+
+export const prerender = false;
+
+const { codigo = '' } = Astro.params;
+const repo = getTicketRepository();
+const ticket = await repo.getTicketByCodigo(codigo);
+
+const siteUrl = Astro.url.origin;
+const ogImageUrl = `${siteUrl}/api/og/obra/${codigo}.png`;
+const canonicalUrl = `${siteUrl}/obra/${codigo}`;
+
+const pageTitle = ticket
+  ? `👷 Obra Abierta: ${ticket.servicioSolicitado} en ${ticket.zona} | El Buen Maestro Cancún`
+  : 'Convocatoria para Maestros Albañiles en Cancún | El Buen Maestro';
+
+const pageDescription = ticket
+  ? `Oportunidad de trabajo en Cancún (${ticket.zona}): ${ticket.servicioSolicitado}. Requerimientos: ${ticket.requerimientosCliente}. Pago semanal garantizado por avance.`
+  : 'Únete a la cartera de maestros albañiles de elbuenmaestrocancun.com. Recibe obras todos los días en Cancún con pago seguro y trato digno.';
+
+const whatsappMsg = ticket
+  ? `Hola El Buen Maestro, vi la convocatoria para la obra ${ticket.codigo} (${ticket.servicioSolicitado} en ${ticket.zona}) y me interesa postularme como Maestro Albañil. Mi nombre es...`
+  : `Hola El Buen Maestro, quiero unirme a la cartera de Maestros Albañiles en Cancún para recibir obras. Mi nombre y especialidad son...`;
+
+const whatsappUrl = getWhatsAppUrl(whatsappMsg);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- OpenGraph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:secure_url" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:site_name" content="El Buen Maestro Cancún" />
+    <meta property="og:locale" content="es_MX" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalUrl} />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style is:global>
+      :root {
+        --bg-main: #0b0f19;
+        --bg-card: #131c2e;
+        --bg-card-alt: #1a253c;
+        --border: #24344d;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --primary: #f59e0b;
+        --primary-light: #fbbf24;
+        --primary-glow: rgba(245, 158, 11, 0.22);
+        --success: #10b981;
+        --info: #38bdf8;
+        --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        font-family: var(--font-body);
+        line-height: 1.6;
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+      }
+
+      /* Header */
+      .obra-header {
+        background: rgba(11, 15, 25, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        padding: 0.85rem 0;
+      }
+
+      .header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: var(--font-heading);
+        font-weight: 800;
+        font-size: 1.15rem;
+      }
+
+      .brand-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        background: var(--primary-glow);
+        color: var(--primary);
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        border: 1px solid rgba(245, 158, 11, 0.4);
+      }
+
+      /* Badges & Pills */
+      .badge-urgent {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba(245, 158, 11, 0.15);
+        border: 1px solid var(--primary);
+        color: var(--primary);
+        padding: 0.35rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.75rem;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      }
+
+      .card-highlight {
+        border-color: var(--primary);
+        background: linear-gradient(180deg, rgba(245, 158, 11, 0.06) 0%, var(--bg-card) 100%);
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        padding: 0.95rem 1.75rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        font-family: var(--font-heading);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        width: 100%;
+      }
+
+      .btn-whatsapp {
+        background: #25d366;
+        color: #0b1a0e;
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35);
+      }
+
+      .btn-whatsapp:hover {
+        background: #20ba59;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #000;
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-light);
+        transform: translateY(-2px);
+      }
+
+      .grid-benefits {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+      }
+
+      .benefit-box {
+        background: var(--bg-card-alt);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.35rem;
+      }
+
+      .benefit-icon {
+        font-size: 2rem;
+        margin-bottom: 0.65rem;
+        display: inline-block;
+      }
+
+      .benefit-title {
+        font-family: var(--font-heading);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.35rem;
+        color: var(--text-main);
+      }
+
+      .benefit-desc {
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      /* Steps */
+      .steps-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1.25rem;
+      }
+
+      .step-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: var(--bg-card-alt);
+        padding: 1.1rem 1.25rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+      }
+
+      .step-num {
+        background: var(--primary);
+        color: #000;
+        font-weight: 800;
+        font-size: 1.1rem;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      /* FAQ */
+      .faq-item {
+        background: var(--bg-card-alt);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .faq-item summary {
+        font-weight: 700;
+        cursor: pointer;
+        color: var(--text-main);
+        font-size: 0.95rem;
+      }
+
+      .faq-item p {
+        margin-top: 0.65rem;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+        line-height: 1.55;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Header -->
+    <header class="obra-header">
+      <div class="container header-flex">
+        <a href="/" class="brand">
+          <span style="font-size: 1.4rem;">👷‍♂️</span>
+          <div>
+            <span>El Buen Maestro</span>
+            <span class="brand-badge">Cancún</span>
+          </div>
+        </a>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style="font-size: 0.88rem; font-weight: 600; color: #25d366; display: flex; align-items: center; gap: 0.4rem;">
+          <span>💬 WhatsApp:</span>
+          <span>{PHONE_DISPLAY}</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+      {ticket && (
+        <div>
+          <div style="text-align: center; margin-bottom: 2rem;">
+            <div class="badge-urgent">
+              <span>⚡ Obra Abierta · Buscamos Maestro Albañil</span>
+            </div>
+            <h1 style="font-family: var(--font-heading); font-size: 2.25rem; font-weight: 900; margin-top: 0.85rem; line-height: 1.2;">
+              {ticket.servicioSolicitado}
+            </h1>
+            <p style="font-size: 1.2rem; color: var(--info); font-weight: 600; margin-top: 0.4rem;">
+              📍 {ticket.zona}, Cancún
+            </p>
+          </div>
+
+          <section class="card card-highlight" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.85rem; flex-wrap: wrap; gap: 0.5rem;">
+              <span style="font-family: monospace; font-size: 0.95rem; font-weight: 700; color: var(--primary); background: rgba(245, 158, 11, 0.12); padding: 0.25rem 0.6rem; border-radius: 6px;">
+                Folio de Obra: {ticket.codigo}
+              </span>
+              <span style="font-size: 0.85rem; color: var(--success); font-weight: 700;">
+                ● Estado: Convocatoria Abierta
+              </span>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <h2 style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; margin-bottom: 0.4rem;">
+                Requerimientos y Alcance del Trabajo:
+              </h2>
+              <div style="background: rgba(11, 15, 25, 0.7); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; font-size: 1.05rem; line-height: 1.6;">
+                {ticket.requerimientosCliente}
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+              <div style="background: var(--bg-card-alt); padding: 0.85rem 1rem; border-radius: 10px; border-left: 3px solid var(--success);">
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Modalidad de Pago</div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Semanal por Avance</div>
+              </div>
+              <div style="background: var(--bg-card-alt); padding: 0.85rem 1rem; border-radius: 10px; border-left: 3px solid var(--primary);">
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Materiales</div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Sin poner de tu bolsa</div>
+              </div>
+              <div style="background: var(--bg-card-alt); padding: 0.85rem 1rem; border-radius: 10px; border-left: 3px solid var(--info);">
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Arranque de Obra</div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Inmediato / Esta semana</div>
+              </div>
+            </div>
+
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+              <span style="font-size: 1.35rem;">💬</span>
+              <span>Postularme para esta Obra por WhatsApp</span>
+            </a>
+            <p style="text-align: center; font-size: 0.82rem; color: var(--text-muted); margin-top: 0.65rem;">
+              Te responderemos de inmediato para agendar la visita de levantamiento técnico.
+            </p>
+          </section>
+        </div>
+      )}
+
+      {!ticket && (
+        <div class="card card-highlight" style="text-align: center; margin-bottom: 2rem; padding: 2.5rem 1.5rem;">
+          <span style="font-size: 3rem;">👷‍♂️</span>
+          <h1 style="font-family: var(--font-heading); font-size: 2rem; font-weight: 900; margin-top: 0.75rem;">
+            Buscamos Maestros Albañiles en Cancún
+          </h1>
+          <p style="font-size: 1.1rem; color: var(--text-muted); max-width: 620px; margin: 0.85rem auto 1.5rem;">
+            Esta obra específica ya fue asignada o el enlace cambió, pero <strong style="color: var(--primary);">todos los días recibimos solicitudes de clientes en Cancún</strong>. Únete a nuestra cartera para recibir las próximas obras en tu zona.
+          </p>
+          <div style="max-width: 440px; margin: 0 auto;">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp">
+              <span>💬 Unirme a la Cartera de Maestros</span>
+            </a>
+          </div>
+        </div>
+      )}
+
+      <!-- PERSUASION SECTION: WHY JOIN EL BUEN MAESTRO -->
+      <section style="margin-top: 3.5rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <h2 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 800;">
+            ¿Por qué unirte a la red de <span style="color: var(--primary);">El Buen Maestro Cancún</span>?
+          </h2>
+          <p style="color: var(--text-muted); font-size: 1rem; max-width: 650px; margin: 0.5rem auto 0;">
+            Dejá de buscar chamba o lidiar con clientes que no pagan. Nosotros te conectamos con obras reales, con trato digno y respaldo completo.
+          </p>
+        </div>
+
+        <div class="grid-benefits">
+          <!-- Benefit 1 -->
+          <div class="benefit-box">
+            <span class="benefit-icon">📱</span>
+            <h3 class="benefit-title">Clientes todos los días</h3>
+            <p class="benefit-desc">
+              Nuestro sitio web recibe leads de clientes en Cancún a diario buscando bardas, pisos, acabados y losas. Vos no gastás ni un peso en publicidad.
+            </p>
+          </div>
+
+          <!-- Benefit 2 -->
+          <div class="benefit-box">
+            <span class="benefit-icon">💵</span>
+            <h3 class="benefit-title">Cobro puntual garantizado</h3>
+            <p class="benefit-desc">
+              Presupuesto firmado antes de pegar el primer block. Pagos puntuales liberados por estimación semanal contra avance fotográfico. Cero pretextos.
+            </p>
+          </div>
+
+          <!-- Benefit 3 -->
+          <div class="benefit-box">
+            <span class="benefit-icon">🧱</span>
+            <h3 class="benefit-title">Cero poner de tu bolsillo</h3>
+            <p class="benefit-desc">
+              El cliente financia los materiales desde el inicio. Nunca tenés que desembolsar tu dinero para que la obra empiece ni para comprar cemento o varilla.
+            </p>
+          </div>
+
+          <!-- Benefit 4 -->
+          <div class="benefit-box">
+            <span class="benefit-icon">🤝</span>
+            <h3 class="benefit-title">Trato con respeto y dignidad</h3>
+            <p class="benefit-desc">
+              Para nosotros vos no sos un peón más: sos el socio técnico en obra. Te apoyamos en las visitas, mediamos con el cliente y respaldamos tu cotización justa.
+            </p>
+          </div>
+
+          <!-- Benefit 5 -->
+          <div class="benefit-box">
+            <span class="benefit-icon">🔑</span>
+            <h3 class="benefit-title">Portal móvil con PIN de 4 dígitos</h3>
+            <p class="benefit-desc">
+              Sin contraseñas raras ni papeleos. Entrás desde tu celular con tu PIN de 4 números para ver tus obras, subir fotos de avances y solicitar tus pagos.
+            </p>
+          </div>
+
+          <!-- Benefit 6 -->
+          <div class="benefit-box">
+            <span class="benefit-icon">🛡️</span>
+            <h3 class="benefit-title">Contratos y firmas digitales</h3>
+            <p class="benefit-desc">
+              Cada presupuesto se valida y se firma con el cliente en la plataforma. Si el cliente pide algo extra, se cobra como adicional antes de ejecutarlo.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS STEP BY STEP -->
+      <section style="margin-top: 3.5rem;">
+        <div class="card">
+          <h2 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem;">
+            ¿Cómo funciona el proceso de trabajo?
+          </h2>
+          <p style="text-align: center; color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.75rem;">
+            Un sistema transparente pensado para que vos solo te preocupes por levantar la obra con calidad.
+          </p>
+
+          <div class="steps-list">
+            <div class="step-item">
+              <div class="step-num">1</div>
+              <div>
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Postulación por WhatsApp</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted);">
+                  Nos mandás un mensaje con tu nombre, la zona de Cancún donde vives y fotos de trabajos que hayas realizado (bardas, pisos, losas, etc.).
+                </p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-num">2</div>
+              <div>
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Visita técnica y cotización formal</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted);">
+                  Te asignamos la cita con el cliente ya filtrado. Vas a la obra, tomas medidas y acordamos juntos el presupuesto de mano de obra y materiales.
+                </p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-num">3</div>
+              <div>
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Firma digital y anticipo</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted);">
+                  El cliente y tú firman el presupuesto digitalmente en la plataforma. Se entregan los materiales en el domicilio de la obra.
+                </p>
+              </div>
+            </div>
+
+            <div class="step-item">
+              <div class="step-num">4</div>
+              <div>
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Avances y pagos semanales</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted);">
+                  Subes fotos de avance desde tu celular con tu PIN y cobras puntualmente tus estimaciones cada semana hasta entregar la obra al 100%.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem; text-align: center;">
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp" style="max-width: 480px; margin: 0 auto;">
+              <span>📲 Escribir al WhatsApp de Coordinación</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- FREQUENTLY ASKED QUESTIONS -->
+      <section style="margin-top: 3.5rem;">
+        <h2 style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 1.5rem;">
+          Preguntas frecuentes de Maestros Albañiles
+        </h2>
+
+        <details class="faq-item" open>
+          <summary>¿Cuánto cuesta unirse a la cartera de El Buen Maestro?</summary>
+          <p>
+            <strong>Es 100% gratis para los maestros albañiles.</strong> Nosotros no te cobramos por recibir obras ni por darte el acceso a la plataforma. Nuestro modelo de negocio cobra una comisión de gestión y garantía al cliente final; tu mano de obra se respeta de forma íntegra.
+          </p>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿Puedo trabajar con mi propia cuadrilla o chalanes?</summary>
+          <p>
+            ¡Totalmente! Tú lideras la ejecución técnica. Si tienes a tus medios cucharas, chalanes o peones de confianza, trabajas con ellos directamente organizando tus tiempos y tus cuadrillas.
+          </p>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿Qué pasa si el cliente pide trabajos adicionales en plena obra?</summary>
+          <p>
+            En Cancún es común que el cliente diga "aprovechando que está aquí, ¿por qué no me hace este murete?". En El Buen Maestro cuidamos tu espalda: ningún trabajo extra se hace de palabra. Se carga en el sistema como adicional con su precio pactado y se cobra antes o con la estimación correspondiente.
+          </p>
+        </details>
+
+        <details class="faq-item">
+          <summary>¿En qué zonas de Cancún tienen trabajo?</summary>
+          <p>
+            Atendemos todo el municipio: desde la Zona Hotelera, Puerto Cancún y Residencial Cumbres, hasta Sm 15, Av. Huayacán, Polígono Sur, Bonfil y zonas norte.
+          </p>
+        </details>
+      </section>
+
+      <!-- Bottom Floating / Sticky Call to Action on Mobile -->
+      <section style="margin-top: 3rem; text-align: center; padding: 2rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border);">
+        <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800;">
+          ¿Listo para trabajar de forma seria y con pago seguro?
+        </h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0.4rem auto 1.25rem; max-width: 500px;">
+          Contáctanos por WhatsApp hoy mismo. Te registramos en 5 minutos y te avisamos en cuanto tengamos una obra en tu especialidad.
+        </p>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="btn btn-whatsapp" style="max-width: 440px; margin: 0 auto;">
+          <span>👷 Registrarme en la Cartera de Maestros</span>
+        </a>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+      <div class="container">
+        <p>© 2026 El Buen Maestro Cancún · Red Profesional de Albañilería y Construcción.</p>
+        <p style="margin-top: 0.35rem;">
+          Portal oficial de coordinación técnica para maestros albañiles de Cancún, Quintana Roo.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>
