@@ -217,6 +217,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
           {HUBS.map(hub => (
             <a href={`/${hub.slug}`} class="nav-link">{hub.shortLabel}</a>
           ))}
+          <a href="/ticket" class="nav-link">Seguir Obra</a>
           <a
             href={getWhatsAppUrl()}
             target="_blank"
@@ -366,6 +367,14 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
             {HUBS.map(hub => (
               <li><a href={`/${hub.slug}`}>{hub.label}</a></li>
             ))}
+          </ul>
+        </div>
+        <div class="footer-links">
+          <h5>Plataforma</h5>
+          <ul>
+            <li><a href="/ticket">Seguimiento de Obra (Clientes)</a></li>
+            <li><a href="/obra">Obras Abiertas (Maestros)</a></li>
+            <li><a href="/maestro">Portal Maestro (PIN)</a></li>
           </ul>
         </div>
         <div class="footer-contact">
@@ -951,7 +960,7 @@ const schemaData = { "@context": "https://schema.org", "@graph": schemaGraph };
 
   @media (min-width: 768px) {
     .footer-grid {
-      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-columns: 1.6fr 1fr 1fr 1fr;
     }
   }
 

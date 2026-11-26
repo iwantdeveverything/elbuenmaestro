@@ -382,6 +382,25 @@ function cleanPhone(phone: string): string {
                     👁️ Ver Vista Cliente
                   </a>
                   <a
+                    href={`/obra/${ticket.codigo}`}
+                    target="_blank"
+                    class="p-btn p-btn-secondary"
+                    style="font-size: 0.82rem; padding: 0.5rem 0.85rem;"
+                  >
+                    📢 Convocatoria de Obra
+                  </a>
+                  <button
+                    type="button"
+                    class="p-btn p-btn-secondary btn-copy-facebook"
+                    data-ticket-code={ticket.codigo}
+                    data-zona={ticket.zona}
+                    data-servicio={ticket.servicioSolicitado}
+                    data-reqs={ticket.requerimientosCliente}
+                    style="font-size: 0.82rem; padding: 0.5rem 0.85rem; border-color: #3b82f6; color: #60a5fa;"
+                  >
+                    📋 Copiar Post Facebook
+                  </button>
+                  <a
                     href={`https://wa.me/${cleanPhone(ticket.clienteTelefono)}?text=${encodeURIComponent(whatsappClienteMsg)}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -697,6 +716,42 @@ function cleanPhone(phone: string): string {
       }
     });
   }
+
+  document.querySelectorAll('.btn-copy-facebook').forEach((btnEl) => {
+    const btn = btnEl as HTMLButtonElement;
+    btn.addEventListener('click', async () => {
+      const code = btn.dataset.ticketCode || '';
+      const zona = btn.dataset.zona || '';
+      const servicio = btn.dataset.servicio || '';
+      const reqs = btn.dataset.reqs || '';
+      const obraUrl = `${window.location.origin}/obra/${code}`;
+
+      const postText = `¡SE BUSCA MAESTRO ALBAÑIL EN CANCÚN! 👷‍♂️🧱
+Tenemos obra abierta disponible para inicio inmediato.
+
+📍 Zona: ${zona}
+🛠️ Trabajo: ${servicio}
+📋 Requerimientos: ${reqs}
+
+✅ Clientes reales en Cancún captados todos los días
+✅ Tú haces el levantamiento y cotizas mano de obra y materiales
+✅ Plataforma profesional con firma digital y trato serio
+
+👉 Mira los detalles completos de la obra y postúlate aquí:
+${obraUrl}`;
+
+      try {
+        await navigator.clipboard.writeText(postText);
+        const originalText = btn.textContent;
+        btn.textContent = '✅ ¡Post Copiado!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2500);
+      } catch (err) {
+        alert('No se pudo copiar automáticamente. Puedes compartir este enlace: ' + obraUrl);
+      }
+    });
+  });
 
   const createMaestroForm = document.getElementById('create-maestro-form') as HTMLFormElement | null;
   if (createMaestroForm) {

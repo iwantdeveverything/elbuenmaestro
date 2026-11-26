@@ -1,0 +1,256 @@
+---
+import { getTicketRepository } from '../../modules/tickets/infrastructure/repositoryFactory.ts';
+import { getWhatsAppUrl, PHONE_DISPLAY } from '../../config/site.ts';
+
+export const prerender = false;
+
+const repo = getTicketRepository();
+const allTickets = await repo.listTickets();
+const openTickets = allTickets.filter(
+  (t) => t.estado === 'solicitud_creada' || t.estado === 'cita_asignada' || !t.maestroId
+);
+
+const siteUrl = Astro.url.origin;
+const ogImageUrl = `${siteUrl}/api/og/obra/general.png`;
+const canonicalUrl = `${siteUrl}/obra`;
+
+const pageTitle = 'Bolsa de Obras y Reclutamiento de Maestros Albañiles en Cancún | El Buen Maestro';
+const pageDescription =
+  'Consulta las obras abiertas y vacantes para maestros albañiles en Cancún. Clientes reales todos los días gracias a nuestro posicionamiento web y cotización directa.';
+
+const whatsappMsg =
+  'Hola El Buen Maestro, me comunico porque quiero unirme a la cartera de Maestros Albañiles en Cancún para recibir obras. Mi especialidad es...';
+const whatsappUrl = getWhatsAppUrl(whatsappMsg);
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- OpenGraph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:site_name" content="El Buen Maestro Cancún" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style is:global>
+      :root {
+        --bg-main: #0b0f19;
+        --bg-card: #131c2e;
+        --bg-card-alt: #1a253c;
+        --border: #24344d;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --primary: #f59e0b;
+        --primary-light: #fbbf24;
+        --success: #10b981;
+        --info: #38bdf8;
+        --font-heading: 'Outfit', sans-serif;
+        --font-body: 'Plus Jakarta Sans', sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-main);
+        color: var(--text-main);
+        font-family: var(--font-body);
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+      }
+
+      .obra-header {
+        background: rgba(11, 15, 25, 0.85);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        padding: 0.85rem 0;
+      }
+
+      .header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-family: var(--font-heading);
+        font-weight: 800;
+        font-size: 1.15rem;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+      }
+
+      .btn-whatsapp {
+        background: #25d366;
+        color: #0b1a0e;
+        padding: 0.9rem 1.5rem;
+        font-weight: 700;
+        font-family: var(--font-heading);
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-align: center;
+      }
+
+      .ticket-item {
+        background: var(--bg-card-alt);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+      }
+
+      .ticket-item:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="obra-header">
+      <div class="container header-flex">
+        <a href="/" class="brand">
+          <span style="font-size: 1.4rem;">👷‍♂️</span>
+          <div>
+            <span>El Buen Maestro</span>
+            <span style="font-size: 0.75rem; color: var(--primary); font-weight: 700; margin-left: 0.35rem;">Cancún</span>
+          </div>
+        </a>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style="font-size: 0.88rem; font-weight: 600; color: #25d366;">
+          💬 WhatsApp: {PHONE_DISPLAY}
+        </a>
+      </div>
+    </header>
+
+    <main class="container" style="padding-top: 2.5rem; padding-bottom: 4rem;">
+      <div style="text-align: center; margin-bottom: 2.5rem;">
+        <span style="background: rgba(245, 158, 11, 0.15); color: var(--primary); border: 1px solid var(--primary); padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase;">
+          👷 Convocatoria Abierta de Albañilería
+        </span>
+        <h1 style="font-family: var(--font-heading); font-size: 2.25rem; font-weight: 900; margin-top: 0.85rem;">
+          Obras Disponibles en Cancún para Maestros Albañiles
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 650px; margin: 0.5rem auto 0;">
+          Revisa las obras abiertas actualmente, postúlate a la que te interese o súmate a la cartera para recibir solicitudes todos los días.
+        </p>
+      </div>
+
+      <!-- Open Works List -->
+      <section style="margin-bottom: 3.5rem;">
+        <h2 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem;">
+          📋 Obras abiertas para postulación ({openTickets.length})
+        </h2>
+
+        {openTickets.length === 0 ? (
+          <div class="card" style="text-align: center; padding: 2.5rem 1rem;">
+            <p style="color: var(--text-muted); font-size: 1.05rem;">
+              En este momento todas las obras están asignadas a maestros activos.
+            </p>
+            <p style="margin-top: 0.5rem; color: #fff;">
+              ¡Escríbenos por WhatsApp para ser el primero en recibir la próxima obra que entre hoy!
+            </p>
+          </div>
+        ) : (
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {openTickets.map((t) => (
+              <div class="ticket-item">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <div>
+                    <span style="font-family: monospace; font-size: 0.85rem; font-weight: 800; color: var(--primary); background: rgba(245, 158, 11, 0.12); padding: 0.2rem 0.5rem; border-radius: 4px;">
+                      {t.codigo}
+                    </span>
+                    <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 800; margin-top: 0.35rem;">
+                      {t.servicioSolicitado}
+                    </h3>
+                    <p style="font-size: 0.95rem; color: var(--info); font-weight: 600;">
+                      📍 Cancún · {t.zona}
+                    </p>
+                  </div>
+                  <span style="background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success); font-size: 0.78rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px;">
+                    ● Obra Abierta
+                  </span>
+                </div>
+
+                <p style="font-size: 0.92rem; color: var(--text-main); line-height: 1.5; margin: 0.75rem 0 1rem; background: rgba(11, 15, 25, 0.6); padding: 0.75rem 1rem; border-radius: 8px;">
+                  {t.requerimientosCliente}
+                </p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+                  <span style="font-size: 0.85rem; color: var(--text-muted);">
+                    ✓ Cotización directa con el cliente · Plataforma con seguimiento digital
+                  </span>
+                  <a
+                    href={`/obra/${t.codigo}`}
+                    style="background: var(--primary); color: #000; font-weight: 700; font-size: 0.9rem; padding: 0.55rem 1.1rem; border-radius: 8px;"
+                  >
+                    Ver Obra y Postularme →
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <!-- Bottom Card -->
+      <section class="card" style="text-align: center; padding: 2.5rem 1.5rem; border-color: var(--primary);">
+        <h2 style="font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800;">
+          ¿Eres Maestro Albañil y quieres chamba fija en Cancún?
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1rem; max-width: 550px; margin: 0.5rem auto 1.5rem;">
+          Súmate a la red de El Buen Maestro. Ponemos la plataforma y el posicionamiento para llevarte clientes reales todos los días; tú cotizas, armas el presupuesto y ejecutas la obra con respaldo profesional.
+        </p>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" class="btn-whatsapp" style="max-width: 440px; margin: 0 auto; width: 100%;">
+          <span>💬 Registrarme por WhatsApp en la Cartera</span>
+        </a>
+      </section>
+    </main>
+  </body>
+</html>
