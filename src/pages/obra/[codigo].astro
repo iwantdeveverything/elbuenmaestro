@@ -17,8 +17,8 @@ const pageTitle = ticket
   : 'Convocatoria para Maestros Albañiles en Cancún | El Buen Maestro';
 
 const pageDescription = ticket
-  ? `Oportunidad de trabajo en Cancún (${ticket.zona}): ${ticket.servicioSolicitado}. Requerimientos: ${ticket.requerimientosCliente}. Pago semanal garantizado por avance.`
-  : 'Únete a la cartera de maestros albañiles de elbuenmaestrocancun.com. Recibe obras todos los días en Cancún con pago seguro y trato digno.';
+  ? `Oportunidad de trabajo en Cancún (${ticket.zona}): ${ticket.servicioSolicitado}. Requerimientos: ${ticket.requerimientosCliente}. Visita técnica y cotización directa con el cliente.`
+  : 'Únete a la cartera de maestros albañiles de elbuenmaestrocancun.com. Recibe clientes reales todos los días en Cancún gracias a nuestro posicionamiento web.';
 
 const whatsappMsg = ticket
   ? `Hola El Buen Maestro, vi la convocatoria para la obra ${ticket.codigo} (${ticket.servicioSolicitado} en ${ticket.zona}) y me interesa postularme como Maestro Albañil. Mi nombre es...`
@@ -357,16 +357,16 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
               <div style="background: var(--bg-card-alt); padding: 0.85rem 1rem; border-radius: 10px; border-left: 3px solid var(--success);">
-                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Modalidad de Pago</div>
-                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Semanal por Avance</div>
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Cotización</div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Tú cotizas mano de obra y materiales</div>
               </div>
               <div style="background: var(--bg-card-alt); padding: 0.85rem 1rem; border-radius: 10px; border-left: 3px solid var(--primary);">
-                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Materiales</div>
-                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Sin poner de tu bolsa</div>
+                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Acuerdo Final</div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Aprobación directa del cliente</div>
               </div>
               <div style="background: var(--bg-card-alt); padding: 0.85rem 1rem; border-radius: 10px; border-left: 3px solid var(--info);">
                 <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Arranque de Obra</div>
-                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Inmediato / Esta semana</div>
+                <div style="font-weight: 700; font-size: 0.95rem; color: #fff;">Inmediato tras visita técnica</div>
               </div>
             </div>
 
@@ -405,7 +405,7 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
             ¿Por qué unirte a la red de <span style="color: var(--primary);">El Buen Maestro Cancún</span>?
           </h2>
           <p style="color: var(--text-muted); font-size: 1rem; max-width: 650px; margin: 0.5rem auto 0;">
-            Deja de buscar chamba o lidiar con clientes que no pagan. Nosotros te conectamos con obras reales, con trato digno y respaldo completo.
+            Nosotros ponemos la plataforma y el posicionamiento web para captar clientes todos los días en Cancún; tú pones el oficio, haces el presupuesto y lideras la obra.
           </p>
         </div>
 
@@ -421,19 +421,19 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
 
           <!-- Benefit 2 -->
           <div class="benefit-box">
-            <span class="benefit-icon">💵</span>
-            <h3 class="benefit-title">Cobro puntual garantizado</h3>
+            <span class="benefit-icon">📋</span>
+            <h3 class="benefit-title">Tú armas tu presupuesto</h3>
             <p class="benefit-desc">
-              Presupuesto firmado antes de pegar el primer block. Pagos puntuales liberados por estimación semanal contra avance fotográfico. Cero pretextos.
+              Tú haces el levantamiento en sitio, defines mano de obra y tiempos, y presentas tu cotización formal. El cliente aprueba directamente el presupuesto final.
             </p>
           </div>
 
           <!-- Benefit 3 -->
           <div class="benefit-box">
             <span class="benefit-icon">🧱</span>
-            <h3 class="benefit-title">Cero poner de tu bolsillo</h3>
+            <h3 class="benefit-title">Control total de materiales</h3>
             <p class="benefit-desc">
-              El cliente financia los materiales desde el inicio. Nunca tienes que desembolsar tu dinero para que la obra empiece ni para comprar cemento o varilla.
+              Como maestro evalúas y cotizas los materiales necesarios para la obra. Puedes registrar la lista y notas en la plataforma para total claridad con el cliente.
             </p>
           </div>
 
@@ -442,7 +442,7 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
             <span class="benefit-icon">🤝</span>
             <h3 class="benefit-title">Trato con respeto y dignidad</h3>
             <p class="benefit-desc">
-              Para nosotros no eres un peón más: eres el socio técnico en obra. Te apoyamos en las visitas, mediamos con el cliente y respaldamos tu cotización justa.
+              Para nosotros eres el experto técnico en obra. Actuamos como mediador profesional: captamos al cliente, coordinamos la primera cita y te damos respaldo de marca.
             </p>
           </div>
 
@@ -451,16 +451,16 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
             <span class="benefit-icon">🔑</span>
             <h3 class="benefit-title">Portal móvil con PIN de 4 dígitos</h3>
             <p class="benefit-desc">
-              Sin contraseñas raras ni papeleos. Entras desde tu celular con tu PIN de 4 números para ver tus obras, subir fotos de avances y solicitar tus pagos.
+              Sin contraseñas raras ni papeleos. Entras desde tu celular con tu PIN de 4 números para ver tus citas, enviar presupuestos y subir fotos de avances.
             </p>
           </div>
 
           <!-- Benefit 6 -->
           <div class="benefit-box">
             <span class="benefit-icon">🛡️</span>
-            <h3 class="benefit-title">Contratos y firmas digitales</h3>
+            <h3 class="benefit-title">Acuerdos claros y firma digital</h3>
             <p class="benefit-desc">
-              Cada presupuesto se valida y se firma con el cliente en la plataforma. Si el cliente pide algo extra, se cobra como adicional antes de ejecutarlo.
+              Tu presupuesto queda registrado y firmado digitalmente con el cliente en la plataforma, evitando malentendidos y dando seriedad a tu trabajo.
             </p>
           </div>
         </div>
@@ -492,7 +492,7 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
               <div>
                 <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Visita técnica y cotización formal</h4>
                 <p style="font-size: 0.88rem; color: var(--text-muted);">
-                  Te asignamos la cita con el cliente ya filtrado. Vas a la obra, tomas medidas y acordamos juntos el presupuesto de mano de obra y materiales.
+                  Te asignamos la cita con el cliente que captamos en la plataforma. Vas a la obra, tomas medidas, evalúas materiales y subes tu presupuesto de mano de obra y materiales.
                 </p>
               </div>
             </div>
@@ -500,9 +500,9 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
             <div class="step-item">
               <div class="step-num">3</div>
               <div>
-                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Firma digital y anticipo</h4>
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Aprobación y firma digital con el cliente</h4>
                 <p style="font-size: 0.88rem; color: var(--text-muted);">
-                  El cliente y tú firman el presupuesto digitalmente en la plataforma. Se entregan los materiales en el domicilio de la obra.
+                  El cliente revisa tu presupuesto final y ambos firman el acuerdo digitalmente en la plataforma para iniciar la obra con total transparencia.
                 </p>
               </div>
             </div>
@@ -510,9 +510,9 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
             <div class="step-item">
               <div class="step-num">4</div>
               <div>
-                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Avances y pagos semanales</h4>
+                <h4 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.2rem;">Seguimiento fotográfico y entrega</h4>
                 <p style="font-size: 0.88rem; color: var(--text-muted);">
-                  Subes fotos de avance desde tu celular con tu PIN y cobras puntualmente tus estimaciones cada semana hasta entregar la obra al 100%.
+                  Subes fotos de avance y el listado de materiales desde tu celular con tu PIN para que el cliente siga el progreso en línea hasta entregar la obra al 100%.
                 </p>
               </div>
             </div>
@@ -549,7 +549,7 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
         <details class="faq-item">
           <summary>¿Qué pasa si el cliente pide trabajos adicionales en plena obra?</summary>
           <p>
-            En Cancún es común que el cliente diga "aprovechando que está aquí, ¿por qué no me hace este murete?". En El Buen Maestro cuidamos tu espalda: ningún trabajo extra se hace de palabra. Se carga en el sistema como adicional con su precio pactado y se cobra antes o con la estimación correspondiente.
+            En Cancún es común que el cliente diga "aprovechando que está aquí, ¿por qué no me hace este murete?". Con la plataforma todo queda claro por escrito: tú cotizas el adicional y el cliente lo aprueba antes de ejecutarlo.
           </p>
         </details>
 
@@ -564,7 +564,7 @@ const whatsappUrl = getWhatsAppUrl(whatsappMsg);
       <!-- Bottom Floating / Sticky Call to Action on Mobile -->
       <section style="margin-top: 3rem; text-align: center; padding: 2rem 1rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border);">
         <h3 style="font-family: var(--font-heading); font-size: 1.4rem; font-weight: 800;">
-          ¿Listo para trabajar de forma seria y con pago seguro?
+          ¿Listo para recibir clientes reales en Cancún todos los días?
         </h3>
         <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0.4rem auto 1.25rem; max-width: 500px;">
           Contáctanos por WhatsApp hoy mismo. Te registramos en 5 minutos y te avisamos en cuanto tengamos una obra en tu especialidad.

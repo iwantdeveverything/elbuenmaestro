@@ -61,7 +61,7 @@ export const GET: APIRoute = async ({ params }) => {
   const codigoLabel = ticket?.codigo || 'CONVOCATORIA';
   const reqText =
     ticket?.requerimientosCliente ||
-    'Buscamos maestros con experiencia en Cancún. Pago puntual garantizado por avance semanal, trato digno y clientes calificados todos los días.';
+    'Buscamos maestros con experiencia en Cancún. Recibe clientes reales todos los días, cotiza mano de obra y materiales directo con el cliente y lleva tus obras en plataforma.';
 
   const wrappedReqs = wrapText(reqText, 58, 3);
   const reqYPositions = [365, 400, 435];
@@ -153,14 +153,14 @@ export const GET: APIRoute = async ({ params }) => {
       <circle cx="12" cy="-4" r="12" fill="#10b981" fill-opacity="0.2" />
       <text x="12" y="2" fill="#10b981" font-size="14" font-weight="bold" text-anchor="middle" font-family="sans-serif">✓</text>
       <text x="32" y="0" fill="#10b981" font-size="20" font-weight="bold" font-family="system-ui, -apple-system, sans-serif">
-        Pago Semanal Garantizado
+        Cotización Directa
       </text>
 
       <!-- Check 2 -->
-      <circle cx="342" cy="-4" r="12" fill="#10b981" fill-opacity="0.2" />
-      <text x="342" y="2" fill="#10b981" font-size="14" font-weight="bold" text-anchor="middle" font-family="sans-serif">✓</text>
-      <text x="362" y="0" fill="#10b981" font-size="20" font-weight="bold" font-family="system-ui, -apple-system, sans-serif">
-        Cliente Verificado
+      <circle cx="272" cy="-4" r="12" fill="#10b981" fill-opacity="0.2" />
+      <text x="272" y="2" fill="#10b981" font-size="14" font-weight="bold" text-anchor="middle" font-family="sans-serif">✓</text>
+      <text x="292" y="0" fill="#10b981" font-size="20" font-weight="bold" font-family="system-ui, -apple-system, sans-serif">
+        Cliente Real en Cancún
       </text>
 
       <!-- Brand URL -->

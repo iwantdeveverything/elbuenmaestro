@@ -47,15 +47,16 @@ Tenemos obra abierta disponible para inicio inmediato.
 🛠️ Trabajo: ${sample.servicioSolicitado}
 📋 Requerimientos: ${sample.requerimientosCliente}
 
-✅ Pago puntual garantizado por estimación semanal
-✅ Cliente verificado y cita coordinada
-✅ Trato digno y directo con El Buen Maestro Cancún
+✅ Clientes reales en Cancún captados todos los días
+✅ Tú haces el levantamiento y cotizas mano de obra y materiales
+✅ Plataforma profesional con firma digital y trato serio
 
 👉 Mira los detalles completos de la obra y postúlate aquí:
 https://elbuenmaestro.vercel.app/obra/${sample.codigo}`;
 
     // Assert that client private phone number and private reference do NOT appear in the share copy
     assert.ok(!facebookPostText.includes(sample.clienteTelefono), 'Client phone must never be leaked');
+    assert.ok(!/pago semanal|de tu bolsa/i.test(facebookPostText), 'Must not include payment/material financing promises');
     if (sample.direccionReferencia) {
       assert.ok(
         !facebookPostText.includes(sample.direccionReferencia),
