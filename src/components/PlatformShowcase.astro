@@ -1,0 +1,282 @@
+---
+// PlatformShowcase.astro — Explains El Buen Maestro's mediator & digital tracking platform
+// for both Clients (tracking + transparency) and Maestros Albañiles (daily leads + direct quoting).
+---
+
+<section class="platform-showcase" aria-labelledby="como-funciona-heading">
+  <!-- Part 1: For Clients -->
+  <div class="ps-block ps-clients">
+    <div class="ps-header">
+      <span class="ps-badge">📲 Plataforma Digital de Seguimiento</span>
+      <h2 id="como-funciona-heading">¿Cómo funciona El Buen Maestro para ti?</h2>
+      <p class="ps-subtitle">
+        Conectamos tu proyecto con maestros albañiles locales en Cancún y te damos transparencia total desde la primera visita hasta la entrega final.
+      </p>
+    </div>
+
+    <div class="ps-steps-grid">
+      <div class="ps-step-card">
+        <span class="ps-step-num">1</span>
+        <h3>Recibimos tu solicitud</h3>
+        <p>Nos cuentas qué necesitas por WhatsApp o formulario y generamos tu <strong>folio digital de seguimiento</strong>.</p>
+      </div>
+      <div class="ps-step-card">
+        <span class="ps-step-num">2</span>
+        <h3>Visita técnica en sitio</h3>
+        <p>Coordinamos a un maestro albañil en tu zona de Cancún para levantar medidas y evaluar tu proyecto.</p>
+      </div>
+      <div class="ps-step-card">
+        <span class="ps-step-num">3</span>
+        <h3>Presupuesto y firma digital</h3>
+        <p>El maestro cotiza mano de obra y materiales; tú revisas y apruebas el presupuesto final con <strong>firma digital</strong>.</p>
+      </div>
+      <div class="ps-step-card">
+        <span class="ps-step-num">4</span>
+        <h3>Avances en vivo con fotos</h3>
+        <p>Consulta desde tu celular el porcentaje de avance, evidencias fotográficas y lista de materiales con tu folio.</p>
+      </div>
+    </div>
+
+    <div class="ps-client-cta">
+      <div>
+        <strong>¿Ya tienes un folio de obra?</strong>
+        <span>Consulta el estado, presupuesto y avances fotográficos en tiempo real.</span>
+      </div>
+      <a href="/ticket" class="ps-btn ps-btn-secondary">
+        🔍 Consultar mi Seguimiento
+      </a>
+    </div>
+  </div>
+
+  <!-- Part 2: For Maestros Albañiles -->
+  <div class="ps-block ps-maestros" aria-labelledby="para-maestros-heading">
+    <div class="ps-maestros-inner">
+      <div class="ps-maestros-copy">
+        <span class="ps-badge ps-badge-amber">👷‍♂️ Red de Maestros Albañiles en Cancún</span>
+        <h2 id="para-maestros-heading">¿Eres Maestro Albañil? Recibe clientes reales todos los días</h2>
+        <p>
+          Nosotros ponemos el posicionamiento web y la plataforma para captar solicitudes diarias en Cancún. Tú haces la visita técnica, armas tu propio presupuesto de mano de obra y materiales directo con el cliente y lideras la ejecución con tu cuadrilla.
+        </p>
+        <ul class="ps-maestros-perks">
+          <li>✓ Solicitudes reales todos los días sin gastar en publicidad</li>
+          <li>✓ Tú cotizas mano de obra y materiales directamente</li>
+          <li>✓ Portal móvil simple con PIN de 4 dígitos para subir presupuestos y avances</li>
+        </ul>
+      </div>
+      <div class="ps-maestros-actions">
+        <a href="/obra" class="ps-btn ps-btn-primary">
+          🧱 Ver Obras Abiertas
+        </a>
+        <a href="/maestro" class="ps-btn ps-btn-outline">
+          🔑 Portal Maestro (PIN)
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .platform-showcase {
+    margin: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .ps-block {
+    background: var(--bg-dark-card, #14181f);
+    border: 1px solid var(--border-color, #242c38);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+  }
+
+  .ps-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .ps-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    margin-bottom: 0.75rem;
+  }
+
+  .ps-badge-amber {
+    color: var(--primary, #f59e0b);
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+
+  .ps-block h2 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+    font-weight: 800;
+    color: var(--text-dark, #f3f4f6);
+    margin: 0 0 0.5rem;
+    line-height: 1.25;
+  }
+
+  .ps-subtitle {
+    color: var(--text-muted, #9ca3af);
+    font-size: 0.96rem;
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  .ps-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ps-step-card {
+    background: rgba(11, 13, 16, 0.55);
+    border: 1px solid var(--border-color, #242c38);
+    border-radius: 12px;
+    padding: 1.15rem;
+  }
+
+  .ps-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--primary, #f59e0b);
+    color: #0b0d10;
+    font-weight: 800;
+    font-size: 0.88rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .ps-step-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark, #f3f4f6);
+    margin: 0 0 0.35rem;
+  }
+
+  .ps-step-card p {
+    font-size: 0.87rem;
+    color: var(--text-muted, #9ca3af);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .ps-client-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: rgba(245, 158, 11, 0.07);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+  }
+
+  .ps-client-cta strong {
+    display: block;
+    color: var(--text-dark, #f3f4f6);
+    font-size: 0.96rem;
+  }
+
+  .ps-client-cta span {
+    font-size: 0.85rem;
+    color: var(--text-muted, #9ca3af);
+  }
+
+  .ps-maestros {
+    border-color: rgba(245, 158, 11, 0.45);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, var(--bg-dark-card, #14181f) 65%);
+  }
+
+  .ps-maestros-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .ps-maestros-copy p {
+    color: var(--text-muted, #9ca3af);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0.5rem 0 1rem;
+  }
+
+  .ps-maestros-perks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    color: var(--text-dark, #f3f4f6);
+  }
+
+  .ps-maestros-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+  }
+
+  .ps-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .ps-btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .ps-btn-primary {
+    background: var(--primary, #f59e0b);
+    color: #0b0d10;
+  }
+
+  .ps-btn-primary:hover {
+    background: #fbbf24;
+  }
+
+  .ps-btn-secondary {
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid #334155;
+  }
+
+  .ps-btn-secondary:hover {
+    border-color: var(--primary, #f59e0b);
+    color: var(--primary, #f59e0b);
+  }
+
+  .ps-btn-outline {
+    background: transparent;
+    color: var(--text-dark, #f3f4f6);
+    border: 1px solid var(--border-color, #242c38);
+  }
+
+  .ps-btn-outline:hover {
+    border-color: var(--primary, #f59e0b);
+    color: var(--primary, #f59e0b);
+  }
+</style>

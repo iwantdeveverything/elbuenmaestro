@@ -38,6 +38,45 @@ function formatDate(iso: string | null | undefined): string {
     return iso;
   }
 }
+
+const CLIENT_PROCESS_STEPS = [
+  {
+    stepNumber: 1,
+    title: 'Folio generado y solicitud registrada',
+    detail:
+      'Recibimos sus requerimientos y abrimos este enlace único para que pueda consultar todo el proceso en tiempo real.',
+  },
+  {
+    stepNumber: 2,
+    title: 'Asignación de maestro y visita técnica',
+    detail:
+      'Asignamos un maestro albañil local en Cancún para visitar su domicilio, revisar el área y tomar medidas.',
+  },
+  {
+    stepNumber: 3,
+    title: 'Presupuesto formal de mano de obra y materiales',
+    detail:
+      'El maestro evalúa el trabajo en sitio y carga aquí su cotización detallada junto con la evidencia de la visita.',
+  },
+  {
+    stepNumber: 4,
+    title: 'Revisión y firma digital del acuerdo',
+    detail:
+      'Usted revisa el presupuesto final y, si está de acuerdo, lo aprueba directamente en esta página con su firma digital.',
+  },
+  {
+    stepNumber: 5,
+    title: 'Ejecución de obra con avances fotográficos',
+    detail:
+      'Conforme avanza el proyecto, el maestro sube fotografías del progreso y el registro de materiales para su tranquilidad.',
+  },
+  {
+    stepNumber: 6,
+    title: 'Entrega y cierre al 100%',
+    detail:
+      'Revisión final del trabajo terminado con respaldo fotográfico completo en este mismo folio.',
+  },
+];
 ---
 
 <PlatformLayout
@@ -121,6 +160,41 @@ function formatDate(iso: string | null | undefined): string {
           <div style="height: 10px; background: #0b0d10; border-radius: 999px; overflow: hidden;">
             <div style={`width: ${ticket.porcentajeAvance}%; height: 100%; background: var(--success);`} />
           </div>
+        </div>
+      </section>
+
+      <!-- Client Process Guide: What Happens Next -->
+      <section class="p-card" style="border-top: 3px solid var(--info);">
+        <div style="margin-bottom: 1rem;">
+          <h2 style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 0.3rem;">
+            🗺️ ¿Cómo continúa su proceso a partir de aquí?
+          </h2>
+          <p style="font-size: 0.88rem; color: var(--text-muted);">
+            El Buen Maestro conecta su proyecto con maestros albañiles locales y le brinda esta plataforma de transparencia. El maestro realiza la cotización técnica de mano de obra y materiales, y usted decide si aprueba el presupuesto final con firma digital.
+          </p>
+        </div>
+
+        <div class="process-roadmap">
+          {CLIENT_PROCESS_STEPS.map((step) => {
+            const isDone = step.stepNumber < meta.stepNumber;
+            const isCurrent = step.stepNumber === meta.stepNumber;
+            return (
+              <div class:list={['roadmap-item', { done: isDone, current: isCurrent }]}>
+                <div class="roadmap-badge">
+                  {isDone ? '✓' : step.stepNumber}
+                </div>
+                <div class="roadmap-body">
+                  <div class="roadmap-title-row">
+                    <strong>{step.title}</strong>
+                    {isCurrent && <span class="roadmap-pill current">● Paso actual</span>}
+                    {isDone && <span class="roadmap-pill done">Completado</span>}
+                    {!isDone && !isCurrent && <span class="roadmap-pill upcoming">Siguiente</span>}
+                  </div>
+                  <p>{step.detail}</p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -437,6 +511,111 @@ function formatDate(iso: string | null | undefined): string {
   .c-step.current .c-step-num {
     background: var(--primary);
     color: #0b0d10;
+  }
+  .process-roadmap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 0.85rem;
+  }
+
+  .roadmap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 10px;
+    background: var(--bg-card-elevated);
+    border: 1px solid var(--border);
+    opacity: 0.85;
+  }
+
+  .roadmap-item.done {
+    border-color: rgba(16, 185, 129, 0.35);
+    background: rgba(16, 185, 129, 0.06);
+    opacity: 0.92;
+  }
+
+  .roadmap-item.current {
+    border-color: var(--primary);
+    background: rgba(245, 158, 11, 0.1);
+    opacity: 1;
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.25);
+  }
+
+  .roadmap-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.82rem;
+    flex-shrink: 0;
+    background: #0b0d10;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+
+  .roadmap-item.done .roadmap-badge {
+    background: var(--success);
+    color: #0b0d10;
+    border-color: var(--success);
+  }
+
+  .roadmap-item.current .roadmap-badge {
+    background: var(--primary);
+    color: #0b0d10;
+    border-color: var(--primary);
+  }
+
+  .roadmap-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .roadmap-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.3rem;
+  }
+
+  .roadmap-title-row strong {
+    font-size: 0.9rem;
+    color: var(--text-main);
+  }
+
+  .roadmap-body p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .roadmap-pill {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .roadmap-pill.current {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--primary);
+  }
+
+  .roadmap-pill.done {
+    background: rgba(16, 185, 129, 0.16);
+    color: var(--success);
+  }
+
+  .roadmap-pill.upcoming {
+    background: rgba(148, 163, 184, 0.12);
+    color: var(--text-muted);
   }
 </style>
 
